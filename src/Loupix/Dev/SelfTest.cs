@@ -103,14 +103,35 @@ public static class SelfTest
             using var hk = new HotkeyManager();
             var w = new SettingsWindow(hk) { ShowActivated = false, WindowStartupLocation = WindowStartupLocation.Manual, Left = -32000, Top = -32000 };
             w.Show();
-            var tabs = (TabControl)w.Content;
-            for (int i = 0; i < tabs.Items.Count; i++)
+            foreach (var (light, mode) in new[] { (false, "dark"), (true, "light") })
             {
-                tabs.SelectedIndex = i;
-                await Idle();
-                Save(tabs, Path.Combine(outDir, $"09_settings_{i}_{((TabItem)tabs.Items[i]).Header}.png"), IconFactory.TaskbarIsLight() ? Color.FromRgb(0xF3, 0xF3, 0xF3) : Color.FromRgb(0x20, 0x20, 0x20));
+                UiTheme.SetPalette(w.Resources, light);
+                for (int i = 0; i < w.Sections.Count; i++)
+                {
+                    w.Sections[i].IsChecked = true;
+                    await Idle();
+                    Save((FrameworkElement)w.Content, Path.Combine(outDir, $"09_settings_{i}_{w.Sections[i].Content}_{mode}.png"), light ? Color.FromRgb(0xF5, 0xF5, 0xF7) : Color.FromRgb(0x1C, 0x1C, 0x1E));
+                }
             }
             w.Close();
+        });
+
+        await Step("dialogs", async () =>
+        {
+            foreach (var (window, name) in new (Window, string)[] { (new WelcomeWindow(), "welcome"), (new ResizeDialog(1440, 900), "resize"), (new LinkPermissionWindow("loupix://grab/area?then=copy,save"), "link") })
+            {
+                window.ShowActivated = false;
+                window.WindowStartupLocation = WindowStartupLocation.Manual;
+                window.Left = window.Top = -32000;
+                window.Show();
+                foreach (var (light, mode) in new[] { (false, "dark"), (true, "light") })
+                {
+                    UiTheme.SetPalette(window.Resources, light);
+                    await Idle();
+                    Save((FrameworkElement)window.Content, Path.Combine(outDir, $"15_{name}_{mode}.png"), light ? Color.FromRgb(0xF5, 0xF5, 0xF7) : Color.FromRgb(0x1C, 0x1C, 0x1E));
+                }
+                window.Close();
+            }
         });
 
         await Step("effects_on_text", async () =>
@@ -201,7 +222,7 @@ public static class SelfTest
         var rtb = new RenderTargetBitmap(Math.Max(1, w), Math.Max(1, h), 96, 96, PixelFormats.Pbgra32);
         if (background is Color bg)
         {
-            // Fluent windows draw on a Mica backdrop that RenderTargetBitmap can't see.
+            // The window paints this colour, but only its content is rendered here.
             var dv = new DrawingVisual();
             using (var dc = dv.RenderOpen()) dc.DrawRectangle(new SolidColorBrush(bg), null, new Rect(0, 0, w, h));
             rtb.Render(dv);

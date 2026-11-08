@@ -408,6 +408,7 @@ public sealed class PinWindow : Window
         menu.Items.Add(new Separator());
         menu.Items.Add(I("Close", "Esc", Close));
         menu.Items.Add(I("Close all pins", "", CloseAll));
+        UiTheme.StyleMenu(menu, UiTheme.AppsAreLight());
         menu.IsOpen = true;
     }
 

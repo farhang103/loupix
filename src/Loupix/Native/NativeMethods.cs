@@ -95,7 +95,7 @@ internal static partial class NativeMethods
     public const uint KEYEVENTF_KEYUP = 2;
     public const int NIM_ADD = 0, NIM_MODIFY = 1, NIM_DELETE = 2, NIM_SETVERSION = 4;
     public const int NIF_MESSAGE = 1, NIF_ICON = 2, NIF_TIP = 4, NIF_SHOWTIP = 0x80;
-    public const int WM_LBUTTONUP = 0x202, WM_RBUTTONUP = 0x205, WM_LBUTTONDBLCLK = 0x203, WM_CONTEXTMENU = 0x7B, NIN_SELECT = 0x400, NIN_KEYSELECT = 0x401;
+    public const int WM_LBUTTONDOWN = 0x201, WM_LBUTTONDBLCLK = 0x203, WM_CONTEXTMENU = 0x7B, NIN_SELECT = 0x400, NIN_KEYSELECT = 0x401;
     public const int DI_NORMAL = 3;
 
     // ---------- user32 ----------
@@ -171,6 +171,9 @@ internal static partial class NativeMethods
 
     [LibraryImport("user32.dll")]
     public static partial IntPtr GetForegroundWindow();
+
+    [LibraryImport("user32.dll")]
+    public static partial uint GetDoubleClickTime();
 
     [LibraryImport("user32.dll")]
     public static partial IntPtr GetDC(IntPtr hWnd);
