@@ -195,7 +195,9 @@ public static class SelfTest
     private static void Save(FrameworkElement? element, string path, Color? background = null)
     {
         if (element == null) return;
-        int w = (int)Math.Ceiling(element.ActualWidth), h = (int)Math.Ceiling(element.ActualHeight);
+        // The element is drawn inside its margin, so the bitmap has to include it.
+        var m = element.Margin;
+        int w = (int)Math.Ceiling(element.ActualWidth + m.Left + m.Right), h = (int)Math.Ceiling(element.ActualHeight + m.Top + m.Bottom);
         var rtb = new RenderTargetBitmap(Math.Max(1, w), Math.Max(1, h), 96, 96, PixelFormats.Pbgra32);
         if (background is Color bg)
         {
