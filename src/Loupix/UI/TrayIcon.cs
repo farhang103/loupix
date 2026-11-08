@@ -130,6 +130,7 @@ public sealed class TrayIcon : IDisposable
         if (_open is { IsOpen: true }) { _open.IsOpen = false; return; }
         var menu = MenuFactory();
         menu.Placement = System.Windows.Controls.Primitives.PlacementMode.MousePoint;
+        UiTheme.StyleMenu(menu, IconFactory.TaskbarIsLight());
         menu.Closed += (_, _) => _open = null;
         _open = menu;
         // Only this hidden window goes to the foreground, so a click elsewhere still dismisses the menu.

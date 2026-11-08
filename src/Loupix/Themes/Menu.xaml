@@ -1,0 +1,96 @@
+<!-- Menus, and the rounded surface that menus and drop-downs share. UiTheme supplies the Menu* brushes. -->
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- The shadow is a separate layer so that it doesn't blur the text. -->
+    <ControlTemplate x:Key="PopupSurface" TargetType="ContentControl">
+        <Grid Margin="14">
+            <Border Background="{DynamicResource MenuBackground}" CornerRadius="9">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="18" ShadowDepth="3" Direction="270" Opacity="0.35" />
+                </Border.Effect>
+            </Border>
+            <Border Background="{DynamicResource MenuBackground}" BorderBrush="{DynamicResource MenuBorder}"
+                    BorderThickness="1" CornerRadius="9" Padding="0,6">
+                <ContentPresenter />
+            </Border>
+        </Grid>
+    </ControlTemplate>
+
+    <Style x:Key="PopupMenu" TargetType="ContextMenu">
+        <Setter Property="HasDropShadow" Value="False" />
+        <Setter Property="Grid.IsSharedSizeScope" Value="True" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ContextMenu">
+                    <ContentControl Template="{StaticResource PopupSurface}" Focusable="False">
+                        <ItemsPresenter KeyboardNavigation.DirectionalNavigation="Cycle" KeyboardNavigation.TabNavigation="Cycle" />
+                    </ContentControl>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="MenuItem">
+        <Setter Property="Foreground" Value="{DynamicResource MenuText}" />
+        <Setter Property="FontFamily" Value="Segoe UI Variable Text, Segoe UI" />
+        <Setter Property="FontSize" Value="13" />
+        <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="MenuItem">
+                    <Border x:Name="Row" Background="Transparent" CornerRadius="5" Margin="5,0" Padding="13,0,11,0" MinHeight="29">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" SharedSizeGroup="MenuIcon" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" SharedSizeGroup="MenuShortcut" />
+                            </Grid.ColumnDefinitions>
+                            <ContentPresenter x:Name="Icon" ContentSource="Icon" Margin="0,0,10,0" VerticalAlignment="Center" />
+                            <Path x:Name="Check" Data="M0,5 L4,9 L11,1" Stroke="{DynamicResource MenuText}" StrokeThickness="1.5" Margin="0,0,10,0"
+                                  VerticalAlignment="Center" Visibility="Collapsed" />
+                            <ContentPresenter Grid.Column="1" ContentSource="Header" RecognizesAccessKey="True" VerticalAlignment="Center" />
+                            <TextBlock x:Name="Shortcut" Grid.Column="2" Text="{TemplateBinding InputGestureText}" Margin="36,0,0,0"
+                                       Foreground="{DynamicResource MenuSubtle}" HorizontalAlignment="Right" VerticalAlignment="Center" />
+                            <Path x:Name="Chevron" Grid.Column="2" Data="M0,0 L4,4 L0,8" Stroke="{DynamicResource MenuSubtle}" StrokeThickness="1.3"
+                                  HorizontalAlignment="Right" VerticalAlignment="Center" Visibility="Collapsed" />
+                            <Popup x:Name="PART_Popup" Placement="Right" HorizontalOffset="-9" VerticalOffset="-21" AllowsTransparency="True" Focusable="False"
+                                   IsOpen="{Binding IsSubmenuOpen, RelativeSource={RelativeSource TemplatedParent}}">
+                                <ContentControl Template="{StaticResource PopupSurface}" Focusable="False">
+                                    <ItemsPresenter Grid.IsSharedSizeScope="True" KeyboardNavigation.DirectionalNavigation="Cycle" KeyboardNavigation.TabNavigation="Cycle" />
+                                </ContentControl>
+                            </Popup>
+                        </Grid>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsHighlighted" Value="True">
+                            <Setter TargetName="Row" Property="Background" Value="{DynamicResource MenuHover}" />
+                        </Trigger>
+                        <Trigger Property="Role" Value="SubmenuHeader">
+                            <Setter TargetName="Chevron" Property="Visibility" Value="Visible" />
+                        </Trigger>
+                        <Trigger Property="Icon" Value="{x:Null}">
+                            <Setter TargetName="Icon" Property="Visibility" Value="Collapsed" />
+                        </Trigger>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="Check" Property="Visibility" Value="Visible" />
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="Row" Property="Opacity" Value="0.4" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="{x:Static MenuItem.SeparatorStyleKey}" TargetType="Separator">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Separator">
+                    <Border Height="1" Margin="0,6" Background="{DynamicResource MenuLine}" />
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+</ResourceDictionary>

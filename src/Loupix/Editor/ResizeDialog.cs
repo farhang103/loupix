@@ -1,7 +1,9 @@
 using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Input;
+using Loupix.UI;
 
 namespace Loupix.Editor;
 
@@ -9,8 +11,8 @@ namespace Loupix.Editor;
 public sealed class ResizeDialog : Window
 {
     private readonly int _w0, _h0;
-    private readonly TextBox _w = new() { Width = 80 }, _h = new() { Width = 80 }, _pct = new() { Width = 60 };
-    private readonly CheckBox _lock = new() { Content = "Keep aspect ratio", IsChecked = true, Margin = new Thickness(0, 8, 0, 0) };
+    private readonly TextBox _w = new() { Width = 96 }, _h = new() { Width = 96 }, _pct = new() { Width = 96 };
+    private readonly ToggleButton _lock = new() { IsChecked = true, HorizontalAlignment = HorizontalAlignment.Right };
     private bool _updating;
 
     public (int W, int H)? Result { get; private set; }
@@ -24,6 +26,9 @@ public sealed class ResizeDialog : Window
         ResizeMode = ResizeMode.NoResize;
         WindowStartupLocation = WindowStartupLocation.CenterOwner;
         ShowInTaskbar = false;
+        UiTheme.Apply(this);
+        FontSize = 13;
+        _lock.Style = (Style)FindResource("UiSwitch");
 
         _w.Text = width.ToString(CultureInfo.InvariantCulture);
         _h.Text = height.ToString(CultureInfo.InvariantCulture);
@@ -32,8 +37,8 @@ public sealed class ResizeDialog : Window
         _h.TextChanged += (_, _) => Sync(fromWidth: false);
         _pct.TextChanged += (_, _) => SyncPercent();
 
-        var grid = new Grid { Margin = new Thickness(16) };
-        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+        var grid = new Grid { Margin = new Thickness(20), MinWidth = 260 };
+        grid.ColumnDefinitions.Add(new ColumnDefinition());
         grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
         for (int i = 0; i < 5; i++) grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         void Row(int r, string label, UIElement e)
@@ -42,15 +47,16 @@ public sealed class ResizeDialog : Window
             Grid.SetRow(t, r); grid.Children.Add(t);
             Grid.SetRow(e, r); Grid.SetColumn(e, 1); grid.Children.Add(e);
             if (e is FrameworkElement fe) fe.Margin = new Thickness(0, 4, 0, 4);
+            System.Windows.Automation.AutomationProperties.SetName(e, label);
         }
         Row(0, "Width (px)", _w);
         Row(1, "Height (px)", _h);
         Row(2, "Scale (%)", _pct);
-        Grid.SetRow(_lock, 3); Grid.SetColumnSpan(_lock, 2); grid.Children.Add(_lock);
-        var ok = new Button { Content = "Resize", IsDefault = true, MinWidth = 80, Margin = new Thickness(0, 0, 8, 0) };
-        var cancel = new Button { Content = "Cancel", IsCancel = true, MinWidth = 80 };
+        Row(3, "Keep aspect ratio", _lock);
+        var cancel = new Button { Content = "Cancel", IsCancel = true, MinWidth = 80, Margin = new Thickness(0, 0, 8, 0) };
+        var ok = new Button { Content = "Resize", IsDefault = true, MinWidth = 80, Style = (Style)FindResource("UiPrimary") };
         ok.Click += (_, _) => Accept();
-        var buttons = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Right, Margin = new Thickness(0, 14, 0, 0), Children = { ok, cancel } };
+        var buttons = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Right, Margin = new Thickness(0, 14, 0, 0), Children = { cancel, ok } };
         Grid.SetRow(buttons, 4); Grid.SetColumnSpan(buttons, 2); grid.Children.Add(buttons);
         Content = grid;
         Loaded += (_, _) => { _w.Focus(); _w.SelectAll(); };

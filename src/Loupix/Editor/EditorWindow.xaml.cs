@@ -222,6 +222,7 @@ public partial class EditorWindow : Window
             }
             menu.PlacementTarget = _overflowButton;
             menu.Placement = PlacementMode.Bottom;
+            UiTheme.StyleMenu(menu, light: false);
             menu.IsOpen = true;
         };
         ToolsPanel.Children.Add(_overflowButton);
@@ -380,6 +381,7 @@ public partial class EditorWindow : Window
         menu.Items.Add(unit);
         menu.PlacementTarget = (UIElement)sender;
         menu.Placement = PlacementMode.Bottom;
+        UiTheme.StyleMenu(menu, light: false);
         menu.IsOpen = true;
     }
 
@@ -400,6 +402,7 @@ public partial class EditorWindow : Window
         foreach (var z in new[] { 50, 200, 400, 800 }) Add($"{z}%", "", () => Canvas.ZoomOnPoint(new Point(_doc!.Base.Width / 2.0, _doc.Base.Height / 2.0), z / 100.0));
         menu.PlacementTarget = (UIElement)sender;
         menu.Placement = PlacementMode.Bottom;
+        UiTheme.StyleMenu(menu, light: false);
         menu.IsOpen = true;
     }
 
@@ -993,6 +996,7 @@ public partial class EditorWindow : Window
         menu.Items.Add(Item("Settings…", "Ctrl+,", AppController.Instance.ShowSettings));
         menu.PlacementTarget = anchor;
         menu.Placement = PlacementMode.Bottom;
+        UiTheme.StyleMenu(menu, light: false);
         menu.IsOpen = true;
     }
 

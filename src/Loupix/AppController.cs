@@ -162,13 +162,7 @@ public sealed class AppController
             ToastWindow.Show("loupix:// links are turned off", "Turn them on in Settings → General → Automation.", buttons: [("Settings", ShowSettings)]);
             return false;
         }
-        string nl = Environment.NewLine + Environment.NewLine;
-        var answer = MessageBox.Show(
-            "Allow other apps and links to control Loupix?" + nl +
-            "Launchers, scripts and web pages can use loupix:// links to take screenshots and copy, save or pin them. " +
-            "Allow this only if you use that kind of automation." + nl + "Requested: " + url,
-            "Loupix", MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No);
-        Settings.AllowLinks = answer == MessageBoxResult.Yes;
+        Settings.AllowLinks = new LinkPermissionWindow(url).ShowDialog() == true;
         SettingsStore.Save();
         return Settings.AllowLinks == true;
     }
