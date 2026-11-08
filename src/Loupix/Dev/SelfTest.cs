@@ -160,6 +160,15 @@ public static class SelfTest
             await RenderElement(panel, 760, double.NaN, Path.Combine(outDir, "10_tool_icons.png"));
         });
 
+        await Step("resize_dialog", async () =>
+        {
+            var w = new ResizeDialog(1440, 900) { ShowActivated = false, WindowStartupLocation = WindowStartupLocation.Manual, Left = -32000, Top = -32000 };
+            w.Show();
+            await Idle();
+            Save(w.Content as FrameworkElement, Path.Combine(outDir, "15_resize_dialog.png"), IconFactory.TaskbarIsLight() ? Color.FromRgb(0xF3, 0xF3, 0xF3) : Color.FromRgb(0x20, 0x20, 0x20));
+            w.Close();
+        });
+
         await Step("tray_glyph", async () =>
         {
             foreach (int size in new[] { 16, 20, 24, 32 })
@@ -186,7 +195,9 @@ public static class SelfTest
     private static void Save(FrameworkElement? element, string path, Color? background = null)
     {
         if (element == null) return;
-        int w = (int)Math.Ceiling(element.ActualWidth), h = (int)Math.Ceiling(element.ActualHeight);
+        // The element is drawn inside its margin, so the bitmap has to include it.
+        var m = element.Margin;
+        int w = (int)Math.Ceiling(element.ActualWidth + m.Left + m.Right), h = (int)Math.Ceiling(element.ActualHeight + m.Top + m.Bottom);
         var rtb = new RenderTargetBitmap(Math.Max(1, w), Math.Max(1, h), 96, 96, PixelFormats.Pbgra32);
         if (background is Color bg)
         {

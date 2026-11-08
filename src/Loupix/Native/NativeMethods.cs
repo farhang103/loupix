@@ -261,4 +261,11 @@ internal static partial class NativeMethods
         int on = 1;
         DwmSetWindowAttribute(hwnd, DWMWA_USE_IMMERSIVE_DARK_MODE, ref on, sizeof(int));
     }
+
+    /// <summary>Asks Windows 11 to round this window's corners (8 px is the largest it offers). Windows 10 ignores it.</summary>
+    public static void SetRoundedCorners(IntPtr hwnd)
+    {
+        int round = 2; // DWMWCP_ROUND
+        DwmSetWindowAttribute(hwnd, DWMWA_WINDOW_CORNER_PREFERENCE, ref round, sizeof(int));
+    }
 }

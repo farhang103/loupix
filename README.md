@@ -47,7 +47,7 @@ On my Mac I loved [Shottr](https://shottr.cc), a tiny screenshot app that makes 
 
 3. **Take a screenshot.** Press `Ctrl+Shift+2` and drag over any area. The first launch also shows you the hotkeys and offers to start Loupix when you sign in.
 
-Needs Windows 10 version 1809 or later, or Windows 11.
+Needs Windows 10 version 1809 or later, or Windows 11. Rounded window corners need Windows 11; on Windows 10 the main windows stay square.
 
 ## Everyday hotkeys
 

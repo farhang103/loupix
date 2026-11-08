@@ -67,6 +67,7 @@ public sealed class ToastWindow : Window
         {
             var b = new Button
             {
+                Style = (Style)Application.Current.FindResource("RoundButton"),
                 Content = label,
                 Margin = new Thickness(12, 0, 0, 0),
                 Padding = new Thickness(10, 3, 10, 3),
@@ -84,7 +85,7 @@ public sealed class ToastWindow : Window
         {
             Margin = new Thickness(12),
             Padding = new Thickness(14, 10, 14, 10),
-            CornerRadius = new CornerRadius(12),
+            CornerRadius = new CornerRadius(18),
             Background = WindowHelpers.Frozen(Color.FromArgb(0xF2, 0x22, 0x22, 0x24)),
             BorderBrush = WindowHelpers.Frozen(Color.FromArgb(50, 255, 255, 255)),
             BorderThickness = new Thickness(1),
@@ -160,6 +161,7 @@ public sealed class ThumbnailWindow : Window
         {
             var b = new Button
             {
+                Style = (Style)Application.Current.FindResource("RoundButton"),
                 Content = new TextBlock { Text = glyph, FontFamily = new FontFamily("Segoe Fluent Icons, Segoe MDL2 Assets"), FontSize = 15, Foreground = Brushes.White },
                 Width = 34,
                 Height = 30,
@@ -185,16 +187,18 @@ public sealed class ThumbnailWindow : Window
         grid.Children.Add(new Border { Background = WindowHelpers.Frozen(Color.FromArgb(70, 0, 0, 0)), Visibility = Visibility.Hidden, Name = "Shade" });
         grid.Children.Add(buttons);
         var shade = (Border)grid.Children[1];
+        // A Border's CornerRadius doesn't clip its content, so the picture needs its own rounded clip.
+        grid.SizeChanged += (_, e) => grid.Clip = new RectangleGeometry(new Rect(e.NewSize), 10, 10);
 
         Content = new Border
         {
             Margin = new Thickness(14),
-            CornerRadius = new CornerRadius(8),
+            CornerRadius = new CornerRadius(12),
             BorderBrush = WindowHelpers.Frozen(Color.FromArgb(120, 255, 255, 255)),
             BorderThickness = new Thickness(2),
             Background = Brushes.White,
             Effect = new DropShadowEffect { BlurRadius = 20, ShadowDepth = 4, Opacity = 0.5 },
-            Child = new Border { CornerRadius = new CornerRadius(6), ClipToBounds = true, Child = grid },
+            Child = grid,
             Cursor = Cursors.Hand,
         };
 
@@ -299,6 +303,7 @@ public sealed class PinWindow : Window
         RenderOptions.SetBitmapScalingMode(_img, BitmapScalingMode.HighQuality);
         _frame = new Border { Child = _img, BorderBrush = WindowHelpers.Frozen(Color.FromArgb(90, 128, 128, 128)), BorderThickness = new Thickness(0) };
         Content = _frame;
+        SourceInitialized += (_, _) => SetRoundedCorners(new WindowInteropHelper(this).Handle);
 
         MouseLeftButtonDown += (_, e) =>
         {

@@ -61,7 +61,7 @@
             <ed:EditorCanvas x:Name="Canvas" />
             <!-- In-window confirmation ("Copied", "Saved"...) -->
             <Border x:Name="Toast" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,14,0,0" Padding="14,8"
-                    CornerRadius="10" Background="#E6262628" BorderBrush="#40FFFFFF" BorderThickness="1"
+                    CornerRadius="12" Background="#E6262628" BorderBrush="#40FFFFFF" BorderThickness="1"
                     Visibility="Collapsed" IsHitTestVisible="False">
                 <StackPanel Orientation="Horizontal">
                     <Border x:Name="ToastSwatch" Width="16" Height="16" CornerRadius="4" Margin="0,0,8,0" Visibility="Collapsed" BorderBrush="#50FFFFFF" BorderThickness="1" />

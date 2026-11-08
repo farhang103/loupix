@@ -94,14 +94,14 @@ internal sealed class ScrollHud : Window, IDisposable
         Topmost = true;
         ShowActivated = false;
         SizeToContent = SizeToContent.WidthAndHeight;
-        var stop = new Button { Content = "Stop", Margin = new Thickness(12, 0, 0, 0), Padding = new Thickness(12, 3, 12, 3), Cursor = Cursors.Hand };
+        var stop = new Button { Style = (Style)Application.Current.FindResource("RoundButton"), Content = "Stop", Margin = new Thickness(12, 0, 0, 0), Padding = new Thickness(12, 3, 12, 3), Cursor = Cursors.Hand };
         stop.Click += (_, _) => StopRequested = true;
         _text.Text = "Scrolling capture…  Esc to stop";
         Content = new Border
         {
             Margin = new Thickness(10),
             Padding = new Thickness(14, 8, 10, 8),
-            CornerRadius = new CornerRadius(10),
+            CornerRadius = new CornerRadius(12),
             Background = new SolidColorBrush(Color.FromArgb(0xF0, 0x22, 0x22, 0x24)),
             Effect = new DropShadowEffect { BlurRadius = 14, ShadowDepth = 2, Opacity = 0.4 },
             Child = new StackPanel { Orientation = Orientation.Horizontal, Children = { _text, stop } },

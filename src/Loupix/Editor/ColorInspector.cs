@@ -33,7 +33,7 @@ public sealed class ColorInspector : Popup
             Background = new SolidColorBrush(Color.FromRgb(0x26, 0x26, 0x29)),
             BorderBrush = new SolidColorBrush(Color.FromRgb(0x3C, 0x3C, 0x40)),
             BorderThickness = new Thickness(1),
-            CornerRadius = new CornerRadius(10),
+            CornerRadius = new CornerRadius(12),
             Child = _root,
             MinWidth = 330,
         };
@@ -55,7 +55,7 @@ public sealed class ColorInspector : Popup
         swatches.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
         swatches.ColumnDefinitions.Add(new ColumnDefinition());
         swatches.Children.Add(Swatch(_fg, "Color", 0));
-        var swap = new Button { Content = "⇄", Width = 30, Height = 26, Margin = new Thickness(8, 0, 8, 0), ToolTip = "Swap", Focusable = false, VerticalAlignment = VerticalAlignment.Center };
+        var swap = new Button { Style = (Style)Application.Current.FindResource("RoundButton"), Content = "⇄", Width = 30, Height = 26, Margin = new Thickness(8, 0, 8, 0), ToolTip = "Swap", Focusable = false, VerticalAlignment = VerticalAlignment.Center };
         swap.Click += (_, _) => { (_fg, _bg) = (_bg, _fg); Build(); };
         Grid.SetColumn(swap, 1);
         swatches.Children.Add(swap);
@@ -67,7 +67,7 @@ public sealed class ColorInspector : Popup
         var contrast = new Border
         {
             Background = new SolidColorBrush(_bg),
-            CornerRadius = new CornerRadius(6),
+            CornerRadius = new CornerRadius(8),
             Padding = new Thickness(10, 6, 10, 6),
             Margin = new Thickness(0, 0, 0, 10),
             Child = new TextBlock { Text = "Sample text Aa", Foreground = new SolidColorBrush(_fg), FontSize = 15, FontWeight = FontWeights.SemiBold },
@@ -94,6 +94,7 @@ public sealed class ColorInspector : Popup
             dot.Checked += (_, _) => { SettingsStore.Current.ColorFormat = key; SettingsStore.Save(); };
             var copy = new Button
             {
+                Style = (Style)Application.Current.FindResource("RoundButton"),
                 Content = new TextBlock { Text = value, FontFamily = new FontFamily("Cascadia Mono, Consolas"), FontSize = 12.5, Foreground = Text },
                 HorizontalContentAlignment = HorizontalAlignment.Left,
                 Background = Brushes.Transparent,
