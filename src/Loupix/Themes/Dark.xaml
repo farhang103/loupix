@@ -337,7 +337,7 @@
                                 <TextBlock x:Name="Arrow" Grid.Column="3" Text="&#xE76C;" FontFamily="{StaticResource IconFont}" FontSize="9" HorizontalAlignment="Right" VerticalAlignment="Center" Visibility="Hidden" />
                             </Grid>
                         </Border>
-                        <Popup x:Name="PART_Popup" Placement="Right" HorizontalOffset="-4" VerticalOffset="-13" AllowsTransparency="True" Focusable="False" PopupAnimation="None"
+                        <Popup x:Name="PART_Popup" Placement="Right" HorizontalOffset="4" VerticalOffset="-6" AllowsTransparency="True" Focusable="False" PopupAnimation="None"
                                IsOpen="{Binding IsSubmenuOpen, RelativeSource={RelativeSource TemplatedParent}}">
                             <Grid Margin="8" Grid.IsSharedSizeScope="True">
                                 <Border CornerRadius="12" Background="#FF2A2A2D">
