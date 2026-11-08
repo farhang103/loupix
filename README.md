@@ -6,7 +6,8 @@
 
 <p align="center">
   <strong>A fast, free screenshot tool for Windows.</strong><br>
-  Capture, mark up, measure and share a screenshot in a couple of keystrokes.
+  Capture, mark up, measure and share a screenshot in a couple of keystrokes.<br>
+  <a href="https://farhang103.github.io/loupix/"><strong>Visit the website</strong></a>
 </p>
 
 <p align="center">
@@ -20,7 +21,7 @@
 </p>
 
 <p align="center">
-  <img src="docs/screenshots/editor.png" width="860" alt="The Loupix editor with arrows, boxes, labels, numbered steps and a magnifier drawn on a sample screenshot">
+  <img src="docs/assets/demo/hero.gif" width="860" alt="A recording of Loupix: pressing Alt, Shift and 2, dragging to select part of the screen, then adding a box, an arrow, a label, numbered steps, pixelation and a background in the editor">
 </p>
 
 ## What is Loupix?
@@ -86,12 +87,12 @@ You can add hotkeys for window, scrolling, repeat-area and delayed capture in **
 
 <table>
   <tr>
-    <td width="50%"><img src="docs/screenshots/backdrop.png" alt="A screenshot on a gradient background with padding and a shadow"><br><sub>Backgrounds for sharing</sub></td>
-    <td width="50%"><img src="docs/screenshots/area-capture.png" alt="Selecting an area of the screen with a magnifier and size readout"><br><sub>Pixel-accurate area selection</sub></td>
+    <td width="50%"><img src="docs/assets/demo/capture.gif" alt="Loupix selecting an area of the screen with a size readout and magnifier, then highlighting a single window"><br><sub>Capture an area or a window</sub></td>
+    <td width="50%"><img src="docs/assets/demo/markup.gif" alt="Highlighting text, drawing a curved arrow, erasing only the text on a banner and spotlighting a card in the Loupix editor"><br><sub>Mark up and hide</sub></td>
   </tr>
   <tr>
-    <td width="50%"><img src="docs/screenshots/ruler.png" alt="Zoomed in on the ruler tool measuring between edges"><br><sub>Measure anything on screen</sub></td>
-    <td width="50%"><img src="docs/screenshots/color-inspector.png" alt="The colour inspector showing formats and contrast"><br><sub>Colours and contrast</sub></td>
+    <td width="50%"><img src="docs/assets/demo/measure.gif" alt="The Loupix ruler measuring a card's width and height, then the colour picker reading colours with contrast checks"><br><sub>Measure and pick colours</sub></td>
+    <td width="50%"><img src="docs/assets/demo/share.gif" alt="Selecting a paragraph so Loupix copies its text, then trying different backgrounds for sharing"><br><sub>Read and share</sub></td>
   </tr>
 </table>
 
