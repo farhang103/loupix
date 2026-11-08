@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <UseWPF>true</UseWPF>
+    <RootNamespace>Loupix</RootNamespace>
+    <AssemblyName>Loupix</AssemblyName>
+    <NoWarn>$(NoWarn);WPF0001</NoWarn>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>Assets\loupix.ico</ApplicationIcon>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Loupix.Core\Loupix.Core.csproj" />
+    <ProjectReference Include="..\Loupix.Services\Loupix.Services.csproj" />
+    <ProjectReference Include="..\Loupix.Raster\Loupix.Raster.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Assets\**\*.png" />
+  </ItemGroup>
+
+</Project>

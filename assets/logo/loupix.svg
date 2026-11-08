@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" role="img" aria-label="Loupix logo">
+  <defs>
+    <linearGradient id="tile" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#22345C"/>
+      <stop offset="1" stop-color="#0D1630"/>
+    </linearGradient>
+    <clipPath id="lens"><circle cx="455.68" cy="455.68" r="217.6"/></clipPath>
+  </defs>
+  <rect width="1024" height="1024" rx="235.52" fill="url(#tile)"/>
+  <line x1="660.23" y1="660.23" x2="814.08" y2="814.08" stroke="#FFB627" stroke-width="128.0" stroke-linecap="round"/>
+  <circle cx="455.68" cy="455.68" r="217.6" fill="#0B1226"/>
+  <g clip-path="url(#lens)">
+      <rect x="258.56" y="258.56" width="117.76" height="117.76" fill="#2DD4BF"/>
+      <rect x="396.8" y="258.56" width="117.76" height="117.76" fill="#38BDF8"/>
+      <rect x="535.04" y="258.56" width="117.76" height="117.76" fill="#60A5FA"/>
+      <rect x="258.56" y="396.8" width="117.76" height="117.76" fill="#34D399"/>
+      <rect x="396.8" y="396.8" width="117.76" height="117.76" fill="#FFB627"/>
+      <rect x="535.04" y="396.8" width="117.76" height="117.76" fill="#818CF8"/>
+      <rect x="258.56" y="535.04" width="117.76" height="117.76" fill="#A3E635"/>
+      <rect x="396.8" y="535.04" width="117.76" height="117.76" fill="#F472B6"/>
+      <rect x="535.04" y="535.04" width="117.76" height="117.76" fill="#C084FC"/>
+  </g>
+  <circle cx="455.68" cy="455.68" r="261.12" fill="none" stroke="#F6F2E7" stroke-width="87.04"/>
+</svg>
