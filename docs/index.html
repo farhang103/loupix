@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Loupix: a fast, free screenshot tool for Windows</title>
+<meta name="description" content="Capture, mark up, measure and share a screenshot in a couple of keystrokes. Free and open source, with no account and no ads.">
+<meta name="theme-color" content="#0D1630">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Loupix: a fast, free screenshot tool for Windows">
+<meta property="og:description" content="Capture, mark up, measure and share a screenshot in a couple of keystrokes.">
+<meta property="og:url" content="https://farhang103.github.io/loupix/">
+<meta property="og:image" content="https://farhang103.github.io/loupix/assets/demo/hero.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="assets/loupix.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;700&family=Space+Grotesk:wght@500;700&display=swap">
+<link rel="stylesheet" href="site.css">
+<script src="site.js" defer></script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<nav class="wrap nav" aria-label="Main">
+  <a class="brand" href="#top"><img src="assets/loupix.png" alt="" width="36" height="36">Loupix</a>
+  <div class="nav-links">
+    <a class="only-wide" href="#features">Features</a>
+    <a class="only-wide" href="#hotkeys">Hotkeys</a>
+    <a href="https://github.com/farhang103/loupix">GitHub</a>
+  </div>
+</nav>
+
+<main id="main">
+  <header id="top" class="wrap hero">
+    <h1>A fast, free screenshot tool for Windows.</h1>
+    <div class="hero-side">
+      <p class="lead">Capture, mark up, measure and share a screenshot in a couple of keystrokes.</p>
+      <a class="cta only-wide" href="https://github.com/farhang103/loupix/releases/latest/download/Loupix-win-x64.zip">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v13"/><path d="m6 11 6 6 6-6"/><path d="M4 21h16"/></svg>
+        Download for Windows
+      </a>
+      <a class="cta only-narrow" href="https://github.com/farhang103/loupix/releases/latest">See the latest release</a>
+      <p class="note only-wide">Windows 10 and 11 · nothing to install · <a href="#start">other downloads</a></p>
+      <p class="note only-narrow">Loupix runs on Windows 10 and 11. Open this page on your PC to download it.</p>
+    </div>
+  </header>
+
+  <section class="showcase" aria-label="Loupix in use">
+    <div class="showcase-frame">
+      <picture>
+        <source media="(prefers-reduced-motion: reduce)" srcset="assets/demo/hero.png">
+        <img src="assets/demo/hero.gif" width="1280" height="800" alt="A recording of Loupix: pressing Alt, Shift and 2, dragging to select part of the screen, then adding a box, an arrow, a label, numbered steps, pixelation and a background in the editor">
+      </picture>
+    </div>
+  </section>
+
+  <section class="wrap why" aria-label="Why Loupix">
+    <div><h2>Free and open source</h2><p>No account, no ads, no trial, no paid tier.</p></div>
+    <div><h2>Private</h2><p>Your screenshots stay on your PC. Loupix only goes online if you set up your own S3 upload.</p></div>
+    <div><h2>Small and quick</h2><p>It sits in the notification area until you press a hotkey.</p></div>
+  </section>
+
+  <section id="features" class="light">
+    <div class="wrap band">
+      <h2 class="title">Everything between the hotkey and the send button</h2>
+      <div class="cards">
+        <article class="card">
+          <img src="assets/demo/capture.png" data-gif="assets/demo/capture.gif" width="1100" height="620" loading="lazy" alt="Loupix selecting an area of the screen with a size readout and magnifier, then highlighting a single window">
+          <div class="card-body"><h3>Capture</h3><p>Full screen, any area, a single window or on a timer. Scrolling capture handles pages longer than your screen, sticky headers included.</p></div>
+        </article>
+        <article class="card">
+          <img src="assets/demo/markup.png" data-gif="assets/demo/markup.gif" width="1100" height="620" loading="lazy" alt="Highlighting text, drawing a curved arrow, erasing only the text on a banner and spotlighting a card in the Loupix editor">
+          <div class="card-body"><h3>Mark up and hide</h3><p>Bendable arrows, boxes, labels, numbered steps and a spotlight. Pixelate, blur or erase, including a mode that hides only the text.</p></div>
+        </article>
+        <article class="card">
+          <img src="assets/demo/measure.png" data-gif="assets/demo/measure.gif" width="1100" height="620" loading="lazy" alt="The Loupix ruler measuring a card's width and height, then the colour picker reading colours with contrast checks">
+          <div class="card-body"><h3>Measure and pick colours</h3><p>A pixel ruler that finds the edges under your cursor. A colour picker with HEX, RGB, HSL, OKLCH and more, plus WCAG and APCA contrast checks.</p></div>
+        </article>
+        <article class="card">
+          <img src="assets/demo/share.png" data-gif="assets/demo/share.gif" width="1100" height="620" loading="lazy" alt="Selecting a paragraph so Loupix copies its text, then trying different backgrounds for sharing">
+          <div class="card-body"><h3>Read and share</h3><p>Copy text with OCR and read QR codes. Pin a screenshot on top, drag it into another app, or add a clean background before you send it.</p></div>
+        </article>
+      </div>
+
+      <h2 class="title tools-title">One letter, one tool</h2>
+      <p class="sub">The editor stays out of your way. Keep your hand on the keyboard.</p>
+      <ul class="tools">
+        <li><kbd>V</kbd>Select and crop</li>
+        <li><kbd>A</kbd>Arrow</li>
+        <li><kbd>R</kbd>Rectangle</li>
+        <li><kbd>O</kbd>Oval</li>
+        <li><kbd>L</kbd>Line</li>
+        <li><kbd>T</kbd>Text</li>
+        <li><kbd>D</kbd>Freehand</li>
+        <li><kbd>H</kbd>Highlighter</li>
+        <li><kbd>S</kbd>Spotlight</li>
+        <li><kbd>N</kbd>Step counter</li>
+        <li><kbd>P</kbd>Pixelate or blur</li>
+        <li><kbd>E</kbd>Erase</li>
+        <li><kbd>M</kbd>Magnifier</li>
+        <li><kbd>U</kbd>Ruler</li>
+        <li><kbd>I</kbd>Colour picker</li>
+        <li><kbd>G</kbd>Backdrop</li>
+      </ul>
+    </div>
+  </section>
+
+  <section id="hotkeys" class="wrap hotkeys">
+    <h2 class="title">Three hotkeys to start</h2>
+    <dl>
+      <div><dt>Capture an area, or click a window</dt><dd><kbd>Alt</kbd><kbd>Shift</kbd><kbd>2</kbd></dd></div>
+      <div><dt>Capture the whole screen</dt><dd><kbd>Alt</kbd><kbd>Shift</kbd><kbd>1</kbd></dd></div>
+      <div><dt>Read text or a QR code from the screen</dt><dd><kbd>Alt</kbd><kbd>Shift</kbd><kbd>3</kbd></dd></div>
+    </dl>
+  </section>
+
+  <section id="start" class="wrap start">
+    <h2 class="title">Get started in a minute</h2>
+    <ol>
+      <li>
+        <h3 class="only-wide">1. Download</h3>
+        <h3 class="only-narrow">1. Download on your PC</h3>
+        <p class="only-wide"><a href="https://github.com/farhang103/loupix/releases/latest/download/Loupix-win-x64.zip">Most Windows PCs</a> · <a href="https://github.com/farhang103/loupix/releases/latest/download/Loupix-win-arm64.zip">Windows on Arm</a> · <a href="https://github.com/farhang103/loupix/releases/latest/download/Loupix-win-x64-requires-dotnet10.zip">Tiny, needs .NET 10</a></p>
+        <p class="only-narrow">Pick the zip for your machine from the <a href="https://github.com/farhang103/loupix/releases/latest">latest release</a>.</p>
+      </li>
+      <li>
+        <h3>2. Unzip and run</h3>
+        <p>Loupix isn't code-signed yet, so Windows may warn you the first time. Choose More info, then Run anyway.</p>
+      </li>
+      <li>
+        <h3>3. Take a screenshot</h3>
+        <p>Press Alt+Shift+2 and drag over any area. Needs Windows 10 version 1809 or later, or Windows 11.</p>
+      </li>
+    </ol>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="wrap">
+    <p>© 2026 Farhang Alizadeh · Free software under the <a href="https://github.com/farhang103/loupix/blob/main/LICENSE">GPL-3.0</a> · <a href="https://github.com/farhang103/loupix">Source on GitHub</a></p>
+    <p>Inspired by <a href="https://shottr.cc">Shottr</a> for macOS. Not affiliated with or endorsed by Shottr or its developer.</p>
+  </div>
+</footer>
+</body>
+</html>

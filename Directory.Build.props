@@ -6,7 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <LangVersion>latest</LangVersion>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <Version>0.1.1</Version>
+    <Version>1.1.0</Version>
     <Company>Loupix</Company>
     <Product>Loupix</Product>
   </PropertyGroup>

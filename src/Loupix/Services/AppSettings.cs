@@ -100,10 +100,10 @@ public sealed class AppSettings
 
     public static Dictionary<CaptureAction, string> DefaultHotkeys() => new()
     {
-        // Shottr's defaults: ⇧⌘1, ⇧⌘2 and ⌃⌥⌘O; everything else starts unassigned.
-        [CaptureAction.Fullscreen] = "Ctrl+Shift+1",
-        [CaptureAction.Area] = "Ctrl+Shift+2",
-        [CaptureAction.Ocr] = "Ctrl+Alt+Shift+O",
+        // Left Alt sits where Cmd does on a Mac, so these keep the hand shape of Shottr's ⇧⌘1 and ⇧⌘2; everything else starts unassigned.
+        [CaptureAction.Fullscreen] = "Alt+Shift+1",
+        [CaptureAction.Area] = "Alt+Shift+2",
+        [CaptureAction.Ocr] = "Alt+Shift+3",
         [CaptureAction.Scrolling] = "",
         [CaptureAction.Window] = "",
         [CaptureAction.RepeatArea] = "",
