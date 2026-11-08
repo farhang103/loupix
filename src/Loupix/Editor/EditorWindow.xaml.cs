@@ -59,6 +59,7 @@ public partial class EditorWindow : Window
     {
         var hwnd = new WindowInteropHelper(this).Handle;
         Native.NativeMethods.SetDarkTitleBar(hwnd);
+        Native.NativeMethods.SetRoundedCorners(hwnd);
     }
 
     // ---------------- document lifecycle ----------------
@@ -635,7 +636,7 @@ public partial class EditorWindow : Window
 
     private void PickCustomColor(FrameworkElement anchor, Color current, Action<Color> picked)
     {
-        var box = new TextBox { Text = $"#{current.R:X2}{current.G:X2}{current.B:X2}", Width = 90, Margin = new Thickness(8), FontFamily = new FontFamily("Consolas") };
+        var box = new TextBox { Style = (Style)FindResource("RoundTextBox"), Text = $"#{current.R:X2}{current.G:X2}{current.B:X2}", Width = 90, Margin = new Thickness(8), FontFamily = new FontFamily("Consolas") };
         var grid = new UniformGrid { Columns = 8, Margin = new Thickness(8, 0, 8, 8) };
         string[] extra = ["#000000", "#3A3A3C", "#8E8E93", "#C7C7CC", "#FFFFFF", "#A2845E", "#FF6482", "#FFB340",
                           "#FFE620", "#7DDA58", "#00C7BE", "#5AC8FA", "#5E5CE6", "#DA8FFF", "#FF375F", "#AC8E68"];
@@ -643,7 +644,7 @@ public partial class EditorWindow : Window
         foreach (var hex in extra)
         {
             var c = (Color)ColorConverter.ConvertFromString(hex);
-            var b = new Button { Width = 20, Height = 20, Margin = new Thickness(2), Background = new SolidColorBrush(c), BorderBrush = Brushes.Gray, Focusable = false };
+            var b = new Button { Style = (Style)FindResource("RoundButton"), Width = 20, Height = 20, Margin = new Thickness(2), Background = new SolidColorBrush(c), BorderBrush = Brushes.Gray, Focusable = false };
             b.Click += (_, _) => { picked(c); popup.IsOpen = false; };
             grid.Children.Add(b);
         }
@@ -656,7 +657,7 @@ public partial class EditorWindow : Window
             Background = new SolidColorBrush(Color.FromRgb(0x2C, 0x2C, 0x2E)),
             BorderBrush = (Brush)FindResource("LineBrush"),
             BorderThickness = new Thickness(1),
-            CornerRadius = new CornerRadius(8),
+            CornerRadius = new CornerRadius(12),
             Child = new StackPanel { Children = { box, grid } },
         };
         popup.IsOpen = true;
