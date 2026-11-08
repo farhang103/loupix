@@ -7,7 +7,7 @@
     <LangVersion>latest</LangVersion>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <!-- When this changes, also update assets/badges/download.svg and the version in docs/index.html. -->
-    <Version>1.1.1</Version>
+    <Version>1.2.0</Version>
     <Company>Loupix</Company>
     <Product>Loupix</Product>
   </PropertyGroup>
