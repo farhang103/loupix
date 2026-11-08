@@ -41,13 +41,38 @@ jobs:
           Copy-Item LICENSE, THIRD-PARTY-NOTICES.md "out/win-x64-small"
           Compress-Archive -Path "out/win-x64-small/*" -DestinationPath "out/Loupix-win-x64-requires-dotnet10.zip" -Force
 
+      - name: Build the installers
+        shell: pwsh
+        run: |
+          $version = ([xml](Get-Content Directory.Build.props)).Project.PropertyGroup.Version
+          Invoke-WebRequest https://www.nuget.org/api/v2/package/Tools.InnoSetup/6.7.3 -OutFile "$env:RUNNER_TEMP\inno.zip"
+          Expand-Archive "$env:RUNNER_TEMP\inno.zip" "$env:RUNNER_TEMP\inno"
+          foreach ($arch in "x64", "arm64") {
+            & "$env:RUNNER_TEMP\inno\tools\ISCC.exe" /Qp "/DAppVersion=$version" "/DArch=$arch" "/DPublishDir=$PWD\out\win-$arch" "/DOutDir=$PWD\out" installer\Loupix.iss
+            if ($LASTEXITCODE -ne 0) { throw "Inno Setup failed for $arch" }
+          }
+
+      - name: Check the installer installs and uninstalls
+        shell: pwsh
+        run: |
+          $exe = "$env:LOCALAPPDATA\Programs\Loupix\Loupix.exe"
+          Start-Process out\Loupix-Setup-x64.exe -ArgumentList "/VERYSILENT", "/SUPPRESSMSGBOXES", "/NORESTART" -Wait
+          if (-not (Test-Path $exe)) { throw "The installer did not put Loupix.exe in place" }
+          Start-Process "$env:LOCALAPPDATA\Programs\Loupix\unins000.exe" -ArgumentList "/VERYSILENT", "/SUPPRESSMSGBOXES", "/NORESTART" -Wait
+          Start-Sleep -Seconds 5
+          if (Test-Path $exe) { throw "The uninstaller left Loupix.exe behind" }
+
       - uses: actions/upload-artifact@v4
         with:
           name: Loupix-windows
-          path: out/*.zip
+          path: |
+            out/*.zip
+            out/*.exe
 
       - name: Release
         if: startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v2
         with:
-          files: out/*.zip
+          files: |
+            out/*.zip
+            out/*.exe

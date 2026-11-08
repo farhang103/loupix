@@ -6,7 +6,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <LangVersion>latest</LangVersion>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <Version>1.1.0</Version>
+    <!-- When this changes, also update assets/badges/download.svg and the version in docs/index.html. -->
+    <Version>1.1.1</Version>
     <Company>Loupix</Company>
     <Product>Loupix</Product>
   </PropertyGroup>

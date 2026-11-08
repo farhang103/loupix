@@ -156,6 +156,35 @@ h1, h2, h3 { font-family: var(--heading); }
   .footer .wrap { flex-direction: column; gap: 12px; padding-block: 24px; }
 }
 
+/* Once the script knows what the visitor is using, that beats guessing from the window width. */
+.is-windows .cta.only-wide { display: inline-flex; }
+.is-windows .note.only-wide, .is-windows .start .only-wide { display: block; }
+.is-windows .cta.only-narrow, .is-windows .note.only-narrow, .is-windows .start .only-narrow,
+.not-windows .cta.only-wide, .not-windows .note.only-wide, .not-windows .start .only-wide { display: none; }
+.not-windows .cta.only-narrow { display: inline-flex; }
+.not-windows .note.only-narrow, .not-windows .start .only-narrow { display: block; }
+
+.cta[data-download] { min-width: 300px; }
+.cta-version { font-size: 14px; font-weight: 500; opacity: .7; }
+.cta.is-busy { cursor: progress; }
+.cta.is-busy svg, .cta.is-busy .cta-version { display: none; }
+.cta.is-busy::before {
+  content: ""; width: 18px; height: 18px;
+  border: 2.5px solid rgba(13, 22, 48, .25); border-top-color: var(--navy); border-radius: 50%;
+  animation: spin .8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.download-toast {
+  position: fixed; left: 50%; bottom: 24px; z-index: 20; transform: translateX(-50%);
+  width: min(560px, calc(100vw - 32px)); padding: 14px 20px;
+  background: var(--navy-deep); color: var(--cream); text-align: center;
+  border: 1px solid var(--key-edge); border-radius: 18px; corner-shape: squircle;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, .45);
+}
+.download-toast[hidden] { display: none; }
+
 @media (prefers-reduced-motion: reduce) {
+  .cta.is-busy::before { animation: none; }
   html { scroll-behavior: auto; }
 }

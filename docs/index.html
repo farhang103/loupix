@@ -36,12 +36,12 @@
     <h1>A fast, free screenshot tool for Windows.</h1>
     <div class="hero-side">
       <p class="lead">Capture, mark up, measure and share a screenshot in a couple of keystrokes.</p>
-      <a class="cta only-wide" href="https://github.com/farhang103/loupix/releases/latest/download/Loupix-win-x64.zip">
+      <a class="cta only-wide" data-download href="https://github.com/farhang103/loupix/releases/latest/download/Loupix-Setup-x64.exe">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v13"/><path d="m6 11 6 6 6-6"/><path d="M4 21h16"/></svg>
-        Download for Windows
+        <span data-cta-label>Download for Windows</span> <span class="cta-version" data-version>v1.1.1</span>
       </a>
       <a class="cta only-narrow" href="https://github.com/farhang103/loupix/releases/latest">See the latest release</a>
-      <p class="note only-wide">Windows 10 and 11 · nothing to install · <a href="#start">other downloads</a></p>
+      <p class="note only-wide">Windows 10 and 11 · <span data-arch-note>Free installer</span> · <a href="#start">other versions</a></p>
       <p class="note only-narrow">Loupix runs on Windows 10 and 11. Open this page on your PC to download it.</p>
     </div>
   </header>
@@ -121,11 +121,11 @@
       <li>
         <h3 class="only-wide">1. Download</h3>
         <h3 class="only-narrow">1. Download on your PC</h3>
-        <p class="only-wide"><a href="https://github.com/farhang103/loupix/releases/latest/download/Loupix-win-x64.zip">Most Windows PCs</a> · <a href="https://github.com/farhang103/loupix/releases/latest/download/Loupix-win-arm64.zip">Windows on Arm</a> · <a href="https://github.com/farhang103/loupix/releases/latest/download/Loupix-win-x64-requires-dotnet10.zip">Tiny, needs .NET 10</a></p>
-        <p class="only-narrow">Pick the zip for your machine from the <a href="https://github.com/farhang103/loupix/releases/latest">latest release</a>.</p>
+        <p class="only-wide"><a data-download href="https://github.com/farhang103/loupix/releases/latest/download/Loupix-Setup-x64.exe">Get the installer</a> for your PC. Need a different one? <a href="https://github.com/farhang103/loupix/releases/latest/download/Loupix-Setup-x64.exe">Most Windows PCs</a> · <a href="https://github.com/farhang103/loupix/releases/latest/download/Loupix-Setup-arm64.exe">Windows on Arm</a></p>
+        <p class="only-narrow">Get the installer for your PC from the <a href="https://github.com/farhang103/loupix/releases/latest">latest release</a>.</p>
       </li>
       <li>
-        <h3>2. Unzip and run</h3>
+        <h3>2. Open it and click Next</h3>
         <p>Loupix isn't code-signed yet, so Windows may warn you the first time. Choose More info, then Run anyway.</p>
       </li>
       <li>
@@ -142,5 +142,6 @@
     <p>Inspired by <a href="https://shottr.cc">Shottr</a> for macOS. Not affiliated with or endorsed by Shottr or its developer.</p>
   </div>
 </footer>
+<div class="download-toast" data-download-toast role="status" aria-live="polite" hidden></div>
 </body>
 </html>
