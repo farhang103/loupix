@@ -94,7 +94,7 @@ internal sealed class ScrollHud : Window, IDisposable
         Topmost = true;
         ShowActivated = false;
         SizeToContent = SizeToContent.WidthAndHeight;
-        var stop = new Button { Content = "Stop", Margin = new Thickness(12, 0, 0, 0), Padding = new Thickness(12, 3, 12, 3), Cursor = Cursors.Hand };
+        var stop = new Button { Style = (Style)Application.Current.FindResource("RoundButton"), Content = "Stop", Margin = new Thickness(12, 0, 0, 0), Padding = new Thickness(12, 3, 12, 3), Cursor = Cursors.Hand };
         stop.Click += (_, _) => StopRequested = true;
         _text.Text = "Scrolling capture…  Esc to stop";
         Content = new Border

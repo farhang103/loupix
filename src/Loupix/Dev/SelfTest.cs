@@ -160,6 +160,15 @@ public static class SelfTest
             await RenderElement(panel, 760, double.NaN, Path.Combine(outDir, "10_tool_icons.png"));
         });
 
+        await Step("resize_dialog", async () =>
+        {
+            var w = new ResizeDialog(1440, 900) { ShowActivated = false, WindowStartupLocation = WindowStartupLocation.Manual, Left = -32000, Top = -32000 };
+            w.Show();
+            await Idle();
+            Save(w.Content as FrameworkElement, Path.Combine(outDir, "15_resize_dialog.png"), IconFactory.TaskbarIsLight() ? Color.FromRgb(0xF3, 0xF3, 0xF3) : Color.FromRgb(0x20, 0x20, 0x20));
+            w.Close();
+        });
+
         await Step("tray_glyph", async () =>
         {
             foreach (int size in new[] { 16, 20, 24, 32 })
