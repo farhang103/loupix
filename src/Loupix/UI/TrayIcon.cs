@@ -1,7 +1,7 @@
 using System.Runtime.InteropServices;
-using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Interop;
+using System.Windows.Threading;
 using static Loupix.Native.NativeMethods;
 
 namespace Loupix.UI;
@@ -12,6 +12,7 @@ public sealed class TrayIcon : IDisposable
     private const int CallbackMessage = 0x8000 + 77;
     private readonly HwndSource _source;
     private readonly uint _taskbarCreated;
+    private readonly DispatcherTimer _singleClick;
     private IntPtr _hIcon;
     private bool _added;
     private string _tooltip = "Loupix";
@@ -24,6 +25,8 @@ public sealed class TrayIcon : IDisposable
         _source = new HwndSource(new HwndSourceParameters("LoupixTray") { WindowStyle = 0, Width = 0, Height = 0 });
         _source.AddHook(WndProc);
         _taskbarCreated = RegisterWindowMessage("TaskbarCreated");
+        _singleClick = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(GetDoubleClickTime()) };
+        _singleClick.Tick += (_, _) => ShowMenu();
     }
 
     public void Show(string tooltip)
@@ -53,7 +56,8 @@ public sealed class TrayIcon : IDisposable
         _hIcon = IconFactory.ToHIcon(IconFactory.TrayGlyph((int)Math.Round(16 * scale)));
         if (_added)
         {
-            var data = Data(NIF_ICON);
+            // Every modify has to repeat NIF_SHOWTIP, or Windows stops showing the tooltip.
+            var data = Data(NIF_ICON | NIF_SHOWTIP);
             Shell_NotifyIcon(NIM_MODIFY, ref data);
         }
         if (old != IntPtr.Zero) DestroyIcon(old);
@@ -79,11 +83,26 @@ public sealed class TrayIcon : IDisposable
             int ev = lParam.ToInt32() & 0xFFFF;
             switch (ev)
             {
-                case WM_LBUTTONUP or NIN_SELECT or NIN_KEYSELECT or WM_CONTEXTMENU or WM_RBUTTONUP:
+                // A click also sends WM_xBUTTONUP just before these. Reacting to both would open the menu and close it again.
+                case NIN_SELECT when _skipNextSelect:
+                    _skipNextSelect = false; // The second release of a double-click.
+                    handled = true;
+                    break;
+                case NIN_SELECT:
+                    // Wait to see if this is a double-click. A menu opened now would sit under the cursor and swallow the second click.
+                    _singleClick.Start();
+                    handled = true;
+                    break;
+                case NIN_KEYSELECT or WM_CONTEXTMENU:
                     ShowMenu();
                     handled = true;
                     break;
+                case WM_LBUTTONDOWN:
+                    _skipNextSelect = false;
+                    break;
                 case WM_LBUTTONDBLCLK:
+                    _singleClick.Stop();
+                    _skipNextSelect = true;
                     DoubleClicked?.Invoke();
                     handled = true;
                     break;
@@ -102,23 +121,27 @@ public sealed class TrayIcon : IDisposable
     }
 
     private ContextMenu? _open;
+    private bool _skipNextSelect;
 
     private void ShowMenu()
     {
+        _singleClick.Stop();
         if (MenuFactory == null) return;
         if (_open is { IsOpen: true }) { _open.IsOpen = false; return; }
         var menu = MenuFactory();
         menu.Placement = System.Windows.Controls.Primitives.PlacementMode.MousePoint;
         menu.Closed += (_, _) => _open = null;
         _open = menu;
+        // Only this hidden window goes to the foreground, so a click elsewhere still dismisses the menu.
+        // Activating the menu's own popup would make WPF take keyboard focus from the menu, which closes it.
         SetForegroundWindow(_source.Handle);
         menu.IsOpen = true;
-        if (PresentationSource.FromVisual(menu) is HwndSource popup) SetForegroundWindow(popup.Handle);
         menu.Focus();
     }
 
     public void Dispose()
     {
+        _singleClick.Stop();
         Hide();
         if (_hIcon != IntPtr.Zero) DestroyIcon(_hIcon);
         _source.Dispose();
