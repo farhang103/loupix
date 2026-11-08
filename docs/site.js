@@ -18,7 +18,7 @@ detectPC().then(({ windows, arm }) => {
   if (!windows) return;
   const file = arm ? "Loupix-Setup-arm64.exe" : "Loupix-Setup-x64.exe";
   for (const link of document.querySelectorAll("a[data-download]")) link.href = INSTALLERS + file;
-  document.querySelector("[data-arch-note]").textContent = arm ? "Installer for Windows on Arm" : "Installer for 64-bit Windows";
+  document.querySelector("[data-arch-note]").textContent = arm ? "Arm installer" : "64-bit installer";
 });
 
 // Show the current release on the button. The version written in the page is the fallback if GitHub can't be reached.
