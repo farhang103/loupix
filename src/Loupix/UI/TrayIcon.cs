@@ -33,6 +33,7 @@ public sealed class TrayIcon : IDisposable
     {
         _tooltip = tooltip;
         RefreshIcon();
+        if (_added) return; // Runs on every settings save, and adding an icon twice fails.
         var data = Data(NIF_MESSAGE | NIF_ICON | NIF_TIP | NIF_SHOWTIP);
         _added = Shell_NotifyIcon(NIM_ADD, ref data);
         data.uVersion = 4;
