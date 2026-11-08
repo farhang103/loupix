@@ -11,13 +11,13 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/farhang103/loupix/releases/latest"><img alt="Download for Windows" src="https://img.shields.io/github/v/release/farhang103/loupix?label=Download%20for%20Windows&style=for-the-badge&color=FFB627&labelColor=0D1630"></a>
+  <a href="https://github.com/farhang103/loupix/releases/latest"><img alt="Download for Windows" src="assets/badges/download.svg"></a>
 </p>
 
 <p align="center">
-  <img alt="Windows 10 and 11" src="https://img.shields.io/badge/Windows-10%20%26%2011-0D1630">
-  <img alt="GPL-3.0 license" src="https://img.shields.io/badge/license-GPL--3.0-0D1630">
-  <img alt="Free forever: no account, no ads" src="https://img.shields.io/badge/free-no%20account%2C%20no%20ads-0D1630">
+  <img alt="Windows 10 and 11" src="assets/badges/windows.svg">
+  <img alt="GPL-3.0 license" src="assets/badges/license.svg">
+  <img alt="Free forever: no account, no ads" src="assets/badges/free.svg">
 </p>
 
 <p align="center">
