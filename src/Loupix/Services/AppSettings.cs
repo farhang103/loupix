@@ -100,6 +100,12 @@ public sealed class AppSettings
     public bool ShowSplash { get; set; } = true;
     public bool FirstRunDone { get; set; }
 
+    // Updates
+    public bool CheckForUpdates { get; set; } = true;
+    public DateTime? LastUpdateCheck { get; set; }
+    /// <summary>The version the user answered "Later" to, so that the card doesn't keep coming back for it.</summary>
+    public string DismissedUpdateVersion { get; set; } = "";
+
     public static Dictionary<CaptureAction, string> DefaultHotkeys() => new()
     {
         // Left Alt sits where Cmd does on a Mac, so these keep the hand shape of Shottr's ⇧⌘1 and ⇧⌘2; everything else starts unassigned.

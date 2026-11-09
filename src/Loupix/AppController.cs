@@ -34,6 +34,13 @@ public sealed class AppController
     public bool IsQuitting { get; private set; }
     private static AppSettings Settings => SettingsStore.Current;
 
+    public Updater Updates { get; }
+
+    private AppController()
+    {
+        Updates = new Updater(() => _busy || _editor is { IsVisible: true, Document: not null }, Quit);
+    }
+
     public void Start(string[] args)
     {
         SettingsStore.Load();
@@ -53,6 +60,9 @@ public sealed class AppController
         // Warm up the editor so the first capture opens instantly.
         _editor = new EditorWindow();
 
+        Updates.Prompt += ShowUpdateCard;
+        Updates.Start();
+
         bool background = args.Contains("--background");
         if (!Settings.FirstRunDone)
         {
@@ -67,6 +77,8 @@ public sealed class AppController
         }
         if (_hotkeys.Conflicts.Count > 0)
             ToastWindow.Show("Some hotkeys are taken by other apps", string.Join(", ", _hotkeys.Conflicts.Select(c => $"{c.Hotkey} ({c.Action})")), buttons: [("Settings", ShowSettings)], seconds: 6);
+
+        if (args.Contains("--updated")) ToastWindow.Show($"Updated to Loupix {Updater.CurrentVersion.ToString(3)}");
 
         HandleArgs(args);
     }
@@ -184,6 +196,13 @@ public sealed class AppController
             else if (click != null) mi.Click += (_, _) => click();
             return mi;
         }
+        if (Updates.Status == UpdateStatus.Available && Updates.Update is { } update)
+        {
+            var install = Item($"Update to {update.Version.ToString(3)}", null, BeginUpdate);
+            install.Icon = UpdateCard.Glyph();
+            menu.Items.Add(install);
+            menu.Items.Add(new Separator());
+        }
         menu.Items.Add(Item("Fullscreen capture", CaptureAction.Fullscreen));
         menu.Items.Add(Item("Area capture", CaptureAction.Area));
         menu.Items.Add(Item("Window capture", CaptureAction.Window));
@@ -229,6 +248,7 @@ public sealed class AppController
         try
         {
             ThumbnailWindow.DismissAll();
+            UpdateCard.CloseCurrent(); // it's always on top, so it would be in the capture
             bool editorWasVisible = _editor?.IsVisible == true;
             if (editorWasVisible) _editor!.Hide(); // never capture our own editor
             await Task.Delay(editorWasVisible ? 120 : 10); // let the window disappear from the screen
@@ -308,6 +328,7 @@ public sealed class AppController
         finally
         {
             _busy = false;
+            if (Updates.Status is UpdateStatus.Downloading or UpdateStatus.WaitingForEditor) ShowUpdateCard();
         }
     }
 
@@ -430,6 +451,22 @@ public sealed class AppController
         var px = ImageIO.LoadFile(path);
         if (px == null) { ToastWindow.Show("Couldn't open the image", Path.GetFileName(path)); return; }
         OpenInEditor(px, 1.0, path);
+    }
+
+    // ---------------- updates ----------------
+
+    public void BeginUpdate()
+    {
+        _ = Updates.InstallAsync();
+        if (Updates.Status == UpdateStatus.Downloading) ShowUpdateCard();
+    }
+
+    private void ShowUpdateCard()
+    {
+        if (_busy || Updates.Update is not { } update) return;
+        bool installing = Updates.Status is UpdateStatus.Downloading or UpdateStatus.WaitingForEditor;
+        bool wanted = Updates.Status == UpdateStatus.Available && Settings.CheckForUpdates && Settings.DismissedUpdateVersion != update.Version.ToString(3);
+        if (installing || wanted) UpdateCard.Present(Updates, BeginUpdate);
     }
 
     public void ShowSettings()

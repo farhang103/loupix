@@ -31,7 +31,7 @@ Press a hotkey, drag over part of your screen, and your screenshot opens in a sm
 On my Mac I loved [Shottr](https://shottr.cc), a tiny screenshot app that makes all of this feel instant. I wanted the same workflow on Windows, so I built Loupix and made it free for everyone.
 
 - **Free and open source.** No account, no ads, no trial, no paid tier.
-- **Private.** Your screenshots stay on your PC. Loupix only goes online if you set up your own S3 upload.
+- **Private.** Your screenshots stay on your PC. Loupix only goes online to check for updates, which you can turn off, or if you set up your own S3 upload.
 - **Small and quick.** It sits in the notification area until you press a hotkey.
 
 ## Get started
