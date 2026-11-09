@@ -6,8 +6,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <LangVersion>latest</LangVersion>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <!-- When this changes, also update assets/badges/download.svg and the version in docs/index.html. -->
-    <Version>1.4.0</Version>
+    <!-- Each release adds one to the last number by itself (packaging/release-version.ps1). Change this only for a bigger jump, like 2.0.0. -->
+    <Version>1.5.0</Version>
     <Company>Loupix</Company>
     <Product>Loupix</Product>
   </PropertyGroup>

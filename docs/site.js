@@ -21,7 +21,7 @@ detectPC().then(({ windows, arm }) => {
   document.querySelector("[data-arch-note]").textContent = arm ? "Arm installer" : "64-bit installer";
 });
 
-// Show the current release on the button. The version written in the page is the fallback if GitHub can't be reached.
+// Show the current release on the button. If GitHub can't be reached, the button just doesn't show a version.
 fetch("https://api.github.com/repos/farhang103/loupix/releases/latest")
   .then((response) => (response.ok ? response.json() : null))
   .then((release) => {
