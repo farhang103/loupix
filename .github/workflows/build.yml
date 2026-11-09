@@ -56,11 +56,14 @@ jobs:
         shell: pwsh
         run: |
           $exe = "$env:LOCALAPPDATA\Programs\Loupix\Loupix.exe"
+          $shortcuts = "Desktop", "Programs" | ForEach-Object { Join-Path ([Environment]::GetFolderPath($_)) "Loupix.lnk" }
           Start-Process out\Loupix-Setup-x64.exe -ArgumentList "/VERYSILENT", "/SUPPRESSMSGBOXES", "/NORESTART" -Wait
           if (-not (Test-Path $exe)) { throw "The installer did not put Loupix.exe in place" }
+          if ((Test-Path $shortcuts) -contains $false) { throw "The installer did not create both shortcuts" }
           Start-Process "$env:LOCALAPPDATA\Programs\Loupix\unins000.exe" -ArgumentList "/VERYSILENT", "/SUPPRESSMSGBOXES", "/NORESTART" -Wait
           Start-Sleep -Seconds 5
           if (Test-Path $exe) { throw "The uninstaller left Loupix.exe behind" }
+          if ((Test-Path $shortcuts) -contains $true) { throw "The uninstaller left a shortcut behind" }
 
       - name: Build the Microsoft Store package
         shell: pwsh
