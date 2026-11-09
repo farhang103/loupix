@@ -304,7 +304,7 @@ public static class SelfTest
         {
             var win = new EditorWindow { ShowActivated = false, Width = 600, Height = 432, Left = -32000, Top = -32000 };
             win.Show();
-            win.Canvas.EmptyHint = "Nothing to edit yet\nAlt+Shift+2  area capture      Alt+Shift+1  fullscreen\nCtrl+V pastes an image · drop an image file here · Ctrl+O opens one";
+            win.Canvas.EmptyHint = "Nothing to edit yet\nCtrl+Shift+D  area capture      Ctrl+Shift+A  fullscreen\nCtrl+V pastes an image · drop an image file here · Ctrl+O opens one";
             win.Canvas.Document = null;
             await Idle();
             Save(win.Content as FrameworkElement, Path.Combine(outDir, "12_empty_editor.png"));
