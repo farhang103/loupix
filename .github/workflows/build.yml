@@ -62,12 +62,17 @@ jobs:
           Start-Sleep -Seconds 5
           if (Test-Path $exe) { throw "The uninstaller left Loupix.exe behind" }
 
+      - name: Build the Microsoft Store package
+        shell: pwsh
+        run: packaging/store/build.ps1
+
       - uses: actions/upload-artifact@v4
         with:
           name: Loupix-windows
           path: |
             out/*.zip
             out/*.exe
+            out/store/*.msixbundle
 
       - name: Release
         if: startsWith(github.ref, 'refs/tags/v')

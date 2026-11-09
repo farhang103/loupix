@@ -194,7 +194,7 @@ internal sealed class ToolDemo : FrameworkElement
         }
         dc.Pop();
 
-        Cursor(dc, cursor, ring, Seg(p, 0, .06) * (1 - Seg(p, .92, .97)));
+        DrawCursor(dc, cursor, ring, Seg(p, 0, .06) * (1 - Seg(p, .92, .97)));
         if (caption != null) Caption(dc, caption);
     }
 
@@ -326,7 +326,7 @@ internal sealed class ToolDemo : FrameworkElement
         dc.DrawText(text, new Point(at.X + 8, at.Y + 3));
     }
 
-    private static void Cursor(DrawingContext dc, Point at, bool ring, double opacity)
+    private static void DrawCursor(DrawingContext dc, Point at, bool ring, double opacity)
     {
         dc.PushOpacity(opacity);
         if (ring) dc.DrawEllipse(null, RingPen, at, 9.5, 9.5);

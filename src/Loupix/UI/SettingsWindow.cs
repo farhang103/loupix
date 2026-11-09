@@ -456,6 +456,7 @@ public sealed class SettingsWindow : Window
 
     private void AddUpdates(StackPanel page)
     {
+        if (SystemIntegration.IsPackaged) return; // the Microsoft Store updates this version
         var updater = AppController.Instance.Updates;
         var rows = Group(page, "Updates");
         var status = new Border();
@@ -524,7 +525,7 @@ public sealed class SettingsWindow : Window
         var links = Group(p, "Links");
         AddRow(links, Note("Automate captures with loupix:// links, e.g. loupix://grab/area?then=copy,save — the same verbs as Shottr: grab/fullscreen, grab/area, grab/repeat, grab/window, grab/scrolling, grab/scrolling/reverse, grab/delayed=5, grab/append, ocr, load/clipboard, load/file, settings, show. then= accepts copy, save, edit, pin, thumbnail."));
         var folder = new Button { Content = "Open settings folder", HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(0, 14, 0, 0) };
-        folder.Click += (_, _) => { Directory.CreateDirectory(SettingsStore.Directory); Process.Start(new ProcessStartInfo(SettingsStore.Directory) { UseShellExecute = true }); };
+        folder.Click += (_, _) => { Directory.CreateDirectory(SettingsStore.Directory); Process.Start(new ProcessStartInfo(SystemIntegration.SettingsFolderOnDisk) { UseShellExecute = true }); };
         p.Children.Add(folder);
         return p;
     }

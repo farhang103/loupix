@@ -45,8 +45,11 @@ public sealed class AppController
     public void Start(string[] args)
     {
         SettingsStore.Load();
-        SystemIntegration.RegisterUrlScheme();
-        SystemIntegration.RegisterOpenWith();
+        if (!SystemIntegration.IsPackaged) // the package's manifest declares these
+        {
+            SystemIntegration.RegisterUrlScheme();
+            SystemIntegration.RegisterOpenWith();
+        }
 
         _hotkeys = new HotkeyManager();
         _hotkeys.Pressed += a => Run(a);

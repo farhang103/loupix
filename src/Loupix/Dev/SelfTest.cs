@@ -252,6 +252,31 @@ public static class SelfTest
             win.Close();
         });
 
+        await Step("microsoft_store_package", async () =>
+        {
+            if (!SystemIntegration.IsPackaged) { log.Add("info not running from a package"); return; }
+            SystemIntegration.LaunchAtStartup = true;
+            if (!SystemIntegration.LaunchAtStartup) throw new Exception("start at sign-in didn't turn on");
+            SystemIntegration.LaunchAtStartup = false;
+            if (SystemIntegration.LaunchAtStartup) throw new Exception("start at sign-in didn't turn off");
+
+            SettingsStore.Save();
+            var settings = Path.Combine(SystemIntegration.SettingsFolderOnDisk, "settings.json");
+            if (!File.Exists(settings)) throw new Exception("settings aren't where Explorer would be sent: " + settings);
+            log.Add("info settings on disk: " + settings);
+
+            // Written fresh, so the script running this can see where Windows really put them.
+            var appData = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Loupix-PackageCheck", "new.txt");
+            Directory.CreateDirectory(Path.GetDirectoryName(appData)!);
+            File.WriteAllText(appData, "x");
+            log.Add("info new appdata file: " + appData);
+            var temp = Path.Combine(Path.GetTempPath(), "Loupix-PackageCheck", "new.txt");
+            Directory.CreateDirectory(Path.GetDirectoryName(temp)!);
+            File.WriteAllText(temp, "x");
+            log.Add("info new temp file: " + temp);
+            await Task.CompletedTask;
+        });
+
         await Step("effects_on_text", async () =>
         {
             var doc = new EditorDocument(sample.Clone(), 1.0);

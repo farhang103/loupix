@@ -42,6 +42,7 @@ public sealed class Updater(Func<bool> editorInUse, Action quit)
 
     public void Start()
     {
+        if (SystemIntegration.IsPackaged) return; // the Microsoft Store updates this version
         try { Directory.Delete(Folder, recursive: true); } catch { } // the installer left over from the last update
 
         // The first check waits a little so that launching and signing in stay quiet.
