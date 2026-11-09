@@ -123,11 +123,21 @@ public sealed class EditorCanvas : Canvas
     public double DpiScale => VisualTreeHelper.GetDpi(this).DpiScaleX;
     private double ViewScale => _zoom / DpiScale;
 
+    /// <summary>The selection is only the object just drawn, not one the user picked, so copying still means the whole image.</summary>
+    public bool SelectionIsJustDrawn { get; private set; }
+
     public void Select(Annotation? a)
     {
+        if (!ReferenceEquals(a, _selected)) SelectionIsJustDrawn = false;
         _selected = a;
         InvalidateVisual();
         StateChanged?.Invoke();
+    }
+
+    private void SelectDrawn(Annotation a)
+    {
+        Select(a);
+        SelectionIsJustDrawn = true;
     }
 
     public void ClearMarquee()
@@ -950,7 +960,7 @@ public sealed class EditorCanvas : Canvas
                 }
                 _doc.Checkpoint();
                 _doc.Annotations.Add(t);
-                Select(t);
+                SelectDrawn(t);
                 BeginTextEdit(t, isNew: true);
                 return;
             case MagnifierAnnotation mg when !_dragMoved:
@@ -969,7 +979,7 @@ public sealed class EditorCanvas : Canvas
         _doc.Annotations.Add(a);
         GrowCanvasFor(a);
         _doc.RaiseChanged();
-        Select(a);
+        SelectDrawn(a);
     }
 
     /// <summary>Objects drawn or moved past the image edge enlarge the canvas to keep them.</summary>

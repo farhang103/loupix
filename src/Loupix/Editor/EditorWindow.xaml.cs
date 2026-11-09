@@ -70,6 +70,7 @@ public partial class EditorWindow : Window
     /// <summary>Shows a document in the editor, sizing the window to the image on the given monitor.</summary>
     public void Open(EditorDocument doc, Capture.MonitorInfo? monitor = null)
     {
+        HideTip();
         _doc = doc;
         Canvas.Document = doc;
         Canvas.Tool = ToolKind.Select;
@@ -188,6 +189,7 @@ public partial class EditorWindow : Window
 
     public void CloseDocument()
     {
+        HideTip();
         Canvas.CommitText();
         Hide();
         DocumentClosed?.Invoke();
@@ -794,7 +796,7 @@ public partial class EditorWindow : Window
         if (!ctrl) return false;
         switch (key)
         {
-            case Key.C: Copy(closeAfter: Canvas.Marquee == null && Canvas.Selected == null); return true;
+            case Key.C: Copy(closeAfter: Canvas.Marquee == null && (Canvas.Selected == null || Canvas.SelectionIsJustDrawn)); return true;
             case Key.S when shift: SaveAs(); return true;
             case Key.S: Save(closeAfter: false); return true;
             case Key.V when shift: AppController.Instance.LoadClipboard(); return true;
@@ -837,8 +839,9 @@ public partial class EditorWindow : Window
     public void Copy(bool closeAfter)
     {
         if (_doc == null) return;
+        HideTip();
         Canvas.CommitText();
-        if (Canvas.Selected != null && Canvas.Marquee == null && !closeAfter)
+        if (Canvas.Selected != null && !Canvas.SelectionIsJustDrawn && Canvas.Marquee == null && !closeAfter)
         {
             Canvas.CopySelectedAnnotation();
             _annotationClipboardSeq = Features.ClipboardSequence();
@@ -856,6 +859,10 @@ public partial class EditorWindow : Window
     }
 
     private uint _annotationClipboardSeq;
+    private (EditorDocument Doc, uint Sequence)? _copiedCapture;
+
+    /// <summary>Notes that the clipboard now holds this capture, so Ctrl+V won't paste it onto itself.</summary>
+    public void RememberCopiedCapture(EditorDocument doc) => _copiedCapture = (doc, Features.ClipboardSequence());
 
     private void Paste()
     {
@@ -863,6 +870,11 @@ public partial class EditorWindow : Window
         if (EditorCanvas.HasAnnotationOnClipboard && Features.ClipboardSequence() == _annotationClipboardSeq)
         {
             Canvas.PasteAnnotation();
+            return;
+        }
+        if (_copiedCapture is { } c && c.Doc == _doc && c.Sequence == Features.ClipboardSequence())
+        {
+            ShowToast("Already copied. Press Ctrl+V in the app you want it in.");
             return;
         }
         var img = ImageIO.ClipboardImage();
@@ -873,6 +885,7 @@ public partial class EditorWindow : Window
     public string? Save(bool closeAfter)
     {
         if (_doc == null) return null;
+        HideTip();
         Canvas.CommitText();
         // Like Shottr: an opened file is never overwritten silently; Save asks where to save it.
         if (_doc.SourcePath != null) { SaveAs(); return null; }
@@ -1106,23 +1119,36 @@ public partial class EditorWindow : Window
         _toastTimer.Start();
     }
 
-    /// <summary>Shows a two-line tip at the bottom of the editor for a few seconds.</summary>
-    public void ShowCoach(string title, string text)
+    /// <summary>The one-time card after the very first capture: what the screenshot can do next.</summary>
+    /// <param name="copied">Whether the capture really is on the clipboard, which the card then says.</param>
+    public void ShowFirstCaptureTip(bool copied)
     {
-        CoachTitle.Text = title;
-        CoachText.Text = text;
-        Coach.BeginAnimation(OpacityProperty, null);
-        Coach.Opacity = 1;
+        var folder = System.IO.Path.GetFileName(Settings.SaveFolder.TrimEnd('\\', '/'));
+        CoachTitle.Text = copied ? "Your screenshot is already copied" : "That's your first screenshot";
+        CoachRows.Children.Clear();
+        if (copied) AddTipRow("Ctrl+V", "Paste it into any app. No need to save it.");
+        AddTipRow("Ctrl+C", copied ? "Drew on it? Copy your version and close." : "Copy it and close.");
+        AddTipRow("Ctrl+S", folder.Length > 0 ? $"Save it as a file in {folder}." : "Save it as a file.");
         Coach.Visibility = Visibility.Visible;
-        var timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(9) };
-        timer.Tick += (_, _) =>
-        {
-            timer.Stop();
-            var fade = new DoubleAnimation(0, TimeSpan.FromMilliseconds(250));
-            fade.Completed += (_, _) => Coach.Visibility = Visibility.Collapsed;
-            Coach.BeginAnimation(OpacityProperty, fade);
-        };
-        timer.Start();
+    }
+
+    private void AddTipRow(string keys, string text)
+    {
+        var caps = HotkeyBox.KeyCaps(keys);
+        caps.Width = 96;
+        DockPanel.SetDock(caps, Dock.Left);
+        var label = new TextBlock { Text = text, FontSize = 13, Foreground = new SolidColorBrush(Color.FromRgb(0xC4, 0xC4, 0xCA)), VerticalAlignment = VerticalAlignment.Center, TextWrapping = TextWrapping.Wrap };
+        CoachRows.Children.Add(new DockPanel { Margin = new Thickness(0, 0, 0, 10), Children = { caps, label } });
+    }
+
+    private void HideTip() => Coach.Visibility = Visibility.Collapsed;
+
+    private void OnTipDismiss(object sender, RoutedEventArgs e) => HideTip();
+
+    private void OnTipSettings(object sender, RoutedEventArgs e)
+    {
+        HideTip();
+        AppController.Instance.ShowSettings();
     }
 
     private void HideToast()

@@ -47,7 +47,7 @@ On my Mac I loved [Shottr](https://shottr.cc), a tiny screenshot app that makes 
 
 2. **Open it and click Install.** It installs for your account, with no administrator prompt. Windows may show a blue "Windows protected your PC" message because Loupix isn't code-signed yet: choose **More info**, then **Run anyway**.
 
-3. **Take a screenshot.** Press `Alt+Shift+2` and drag over any area. The first launch also shows you the hotkeys and offers to start Loupix when you sign in.
+3. **Take a screenshot.** Press `Alt+Shift+2` and drag over any area. It's copied right away, so you can paste it anywhere. The first launch also shows you the hotkeys and offers to start Loupix when you sign in.
 
 Needs Windows 10 version 1809 or later, or Windows 11. Rounded window corners need Windows 11; on Windows 10 the main windows stay square.
 
@@ -116,7 +116,7 @@ You can add hotkeys for window, scrolling, repeat-area and delayed capture in **
 | `Z`+click · `Z`+drag | Zoom in at a point · zoom to a rectangle |
 | Right-drag · `Space`+drag · `Ctrl`+wheel | Pan · pan · zoom |
 | `Shift` while drawing · `Space` while drawing · `Ctrl` while drawing an arrow | Constrain · move the object · reverse the arrow |
-| `Alt`+drag an object · `Ctrl+D` · `Ctrl+C`/`Ctrl+V` | Duplicate · duplicate · copy/paste objects (pasting an image adds it as an overlay) |
+| `Alt`+drag an object · `Ctrl+D` · `Ctrl+C`/`Ctrl+V` | Duplicate · duplicate · copy/paste objects you've clicked (pasting an image adds it as an overlay) |
 | `1`–`9` | Spotlight darkness · overlay opacity · type a number to renumber a step counter |
 | `Ctrl+Enter` · `Alt+↑`/`↓` | Cycle arrow style / freehand variability / highlighter caps · freehand smoothness |
 | `Esc` | Copy and close (configurable: close, save, copy + save) |

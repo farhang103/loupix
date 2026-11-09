@@ -610,6 +610,12 @@ public sealed class WelcomeWindow : Window
             keys.Margin = new Thickness(0, 0, 0, 12);
             body.Children.Add(keys);
             body.Children.Add(new TextBlock { Text = "Press these keys, then drag over anything on your screen.", FontSize = 14, TextAlignment = TextAlignment.Center, TextWrapping = TextWrapping.Wrap });
+            var copied = Subtle("It's copied right away, so you can paste it anywhere.");
+            copied.FontSize = 14;
+            copied.TextAlignment = TextAlignment.Center;
+            copied.TextWrapping = TextWrapping.Wrap;
+            copied.Margin = new Thickness(0, 4, 0, 0);
+            body.Children.Add(copied);
         }
         else
         {
