@@ -47,7 +47,7 @@ On my Mac I loved [Shottr](https://shottr.cc), a tiny screenshot app that makes 
 
 2. **Open it and click Install.** It installs for your account, with no administrator prompt. Windows may show a blue "Windows protected your PC" message because Loupix isn't code-signed yet: choose **More info**, then **Run anyway**.
 
-3. **Take a screenshot.** Press `Alt+Shift+2` and drag over any area. It's copied right away, so you can paste it anywhere. The first launch also shows you the hotkeys and offers to start Loupix when you sign in.
+3. **Take a screenshot.** Press `Ctrl+Shift+D` and drag over any area. It's copied right away, so you can paste it anywhere. The first launch also shows you the hotkeys and offers to start Loupix when you sign in.
 
 Needs Windows 10 version 1809 or later, or Windows 11. Rounded window corners need Windows 11; on Windows 10 the main windows stay square.
 
@@ -55,9 +55,9 @@ Needs Windows 10 version 1809 or later, or Windows 11. Rounded window corners ne
 
 | Do this | Press |
 |---|---|
-| Capture an area (or click a window to capture just that window) | `Alt+Shift+2` |
-| Capture the whole screen | `Alt+Shift+1` |
-| Read text or a QR code from the screen | `Alt+Shift+3` |
+| Capture an area (or click a window to capture just that window) | `Ctrl+Shift+D` |
+| Capture the whole screen | `Ctrl+Shift+A` |
+| Read text or a QR code from the screen | `Ctrl+Shift+Q` |
 
 You can add hotkeys for window, scrolling, repeat-area and delayed capture in **Settings > Hotkeys**. Screenshots are saved to your Downloads folder unless you choose another one.
 

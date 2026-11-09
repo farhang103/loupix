@@ -111,10 +111,10 @@ public sealed class AppSettings
 
     public static Dictionary<CaptureAction, string> DefaultHotkeys() => new()
     {
-        // Left Alt sits where Cmd does on a Mac, so these keep the hand shape of Shottr's ⇧⌘1 and ⇧⌘2; everything else starts unassigned.
-        [CaptureAction.Fullscreen] = "Alt+Shift+1",
-        [CaptureAction.Area] = "Alt+Shift+2",
-        [CaptureAction.Ocr] = "Alt+Shift+3",
+        // One-handed on a Windows keyboard: A for all of the screen, D to drag out an area, Q for QR codes and text. Everything else starts unassigned.
+        [CaptureAction.Fullscreen] = "Ctrl+Shift+A",
+        [CaptureAction.Area] = "Ctrl+Shift+D",
+        [CaptureAction.Ocr] = "Ctrl+Shift+Q",
         [CaptureAction.Scrolling] = "",
         [CaptureAction.Window] = "",
         [CaptureAction.RepeatArea] = "",
