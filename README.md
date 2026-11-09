@@ -45,7 +45,7 @@ On my Mac I loved [Shottr](https://shottr.cc), a tiny screenshot app that makes 
    | You'd rather not install anything | `Loupix-win-x64.zip` or `Loupix-win-arm64.zip` |
    | You already have the [.NET 10 Desktop Runtime](https://dotnet.microsoft.com/download/dotnet/10.0) and want a tiny download | `Loupix-win-x64-requires-dotnet10.zip` |
 
-2. **Open it and click Next.** It installs for your account, with no administrator prompt. Windows may show a blue "Windows protected your PC" message because Loupix isn't code-signed yet: choose **More info**, then **Run anyway**.
+2. **Open it and click Install.** It installs for your account, with no administrator prompt. Windows may show a blue "Windows protected your PC" message because Loupix isn't code-signed yet: choose **More info**, then **Run anyway**.
 
 3. **Take a screenshot.** Press `Alt+Shift+2` and drag over any area. The first launch also shows you the hotkeys and offers to start Loupix when you sign in.
 

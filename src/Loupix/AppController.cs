@@ -27,6 +27,7 @@ public sealed class AppController
     private TrayIcon? _tray;
     private HotkeyManager? _hotkeys;
     private EditorWindow? _editor;
+    private WelcomeWindow? _welcome;
     private RectI? _lastArea;
     private bool _busy;
     private static readonly HttpClient Http = new() { Timeout = TimeSpan.FromSeconds(60) };
@@ -64,9 +65,11 @@ public sealed class AppController
         Updates.Start();
 
         bool background = args.Contains("--background");
-        if (!Settings.FirstRunDone)
+        bool firstRun = !Settings.FirstRunDone;
+        if (firstRun)
         {
             Settings.FirstRunDone = true;
+            Settings.FirstCaptureTipPending = true;
             SettingsStore.Save();
             ShowWelcome();
         }
@@ -75,7 +78,7 @@ public sealed class AppController
             // Like Shottr, a manual launch shows the (empty) editor with how-to hints.
             _editor.ShowEmpty(Monitors.AtCursor());
         }
-        if (_hotkeys.Conflicts.Count > 0)
+        if (_hotkeys.Conflicts.Count > 0 && !firstRun) // the Welcome window explains these itself
             ToastWindow.Show("Some hotkeys are taken by other apps", string.Join(", ", _hotkeys.Conflicts.Select(c => $"{c.Hotkey} ({c.Action})")), buttons: [("Settings", ShowSettings)], seconds: 6);
 
         if (args.Contains("--updated")) ToastWindow.Show($"Updated to Loupix {Updater.CurrentVersion.ToString(3)}");
@@ -91,7 +94,17 @@ public sealed class AppController
 
     private void ShowWelcome()
     {
-        var w = new WelcomeWindow();
+        var w = _welcome = new WelcomeWindow(_hotkeys!.Conflicts.Select(c => c.Action).ToHashSet());
+        w.Closed += (_, _) => _welcome = null;
+        w.Show();
+        BringToFront(w);
+    }
+
+    public void ShowToolGuide()
+    {
+        var existing = Application.Current.Windows.OfType<ToolGuideWindow>().FirstOrDefault();
+        if (existing != null) { BringToFront(existing); return; }
+        var w = new ToolGuideWindow();
         w.Show();
         BringToFront(w);
     }
@@ -251,7 +264,9 @@ public sealed class AppController
             UpdateCard.CloseCurrent(); // it's always on top, so it would be in the capture
             bool editorWasVisible = _editor?.IsVisible == true;
             if (editorWasVisible) _editor!.Hide(); // never capture our own editor
-            await Task.Delay(editorWasVisible ? 120 : 10); // let the window disappear from the screen
+            bool welcomeWasOpen = _welcome != null;
+            _welcome?.Close(); // or the Welcome window that told you to press the hotkey
+            await Task.Delay(editorWasVisible || welcomeWasOpen ? 120 : 10); // let the window disappear from the screen
 
             switch (action)
             {
@@ -374,7 +389,16 @@ public sealed class AppController
             if (!then.HasFlag(ThenAction.Edit)) Notify($"Saved {Path.GetFileName(path)}", NotificationKind.Save, path);
         }
         if (then.HasFlag(ThenAction.Pin)) Pin(Bmp(), monitor.Scale, monitor);
-        if (then.HasFlag(ThenAction.Edit)) _editor!.Open(doc, monitor);
+        if (then.HasFlag(ThenAction.Edit))
+        {
+            _editor!.Open(doc, monitor);
+            if (Settings.FirstCaptureTipPending)
+            {
+                Settings.FirstCaptureTipPending = false;
+                SettingsStore.Save();
+                _editor.ShowCoach("That's your first screenshot", "Mark it up if you like, then press Esc to copy it and close.");
+            }
+        }
         else if (then.HasFlag(ThenAction.Thumbnail)) ShowThumbnail(doc, monitor);
     }
 
@@ -469,12 +493,18 @@ public sealed class AppController
         if (installing || wanted) UpdateCard.Present(Updates, BeginUpdate);
     }
 
-    public void ShowSettings()
+    public void ShowSettings() => ShowSettings(null);
+
+    /// <summary>Opens Settings, on a particular page if one is named.</summary>
+    public void ShowSettings(string? section)
     {
-        var existing = Application.Current.Windows.OfType<SettingsWindow>().FirstOrDefault();
-        if (existing != null) { BringToFront(existing); return; }
-        var w = new SettingsWindow(_hotkeys!);
-        w.Show();
+        var w = Application.Current.Windows.OfType<SettingsWindow>().FirstOrDefault();
+        if (w == null)
+        {
+            w = new SettingsWindow(_hotkeys!);
+            w.Show();
+        }
+        if (section != null) w.Sections.First(s => (string)s.Content == section).IsChecked = true;
         BringToFront(w);
     }
 

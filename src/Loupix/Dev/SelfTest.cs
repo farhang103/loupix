@@ -3,6 +3,7 @@ using System.Globalization;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Documents;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
@@ -142,12 +143,13 @@ public static class SelfTest
 
         await Step("dialogs", async () =>
         {
-            foreach (var (window, name) in new (Window, string)[] { (new WelcomeWindow(), "welcome"), (new ResizeDialog(1440, 900), "resize"), (new LinkPermissionWindow("loupix://grab/area?then=copy,save"), "link") })
+            foreach (var (window, name) in new (Window, string)[] { (new WelcomeWindow { IsPreview = true }, "welcome"), (new WelcomeWindow([CaptureAction.Area, CaptureAction.Ocr]) { IsPreview = true }, "welcome_taken"),(new ToolGuideWindow(), "tool_guide"), (new ResizeDialog(1440, 900), "resize"), (new LinkPermissionWindow("loupix://grab/area?then=copy,save"), "link") })
             {
                 window.ShowActivated = false;
                 window.WindowStartupLocation = WindowStartupLocation.Manual;
                 window.Left = window.Top = -32000;
                 window.Show();
+                if (window is ToolGuideWindow) await Task.Delay(1500); // let the animations get going
                 foreach (var (light, mode) in new[] { (false, "dark"), (true, "light") })
                 {
                     UiTheme.SetPalette(window.Resources, light);
@@ -156,6 +158,98 @@ public static class SelfTest
                 }
                 window.Close();
             }
+        });
+
+        await Step("tool_demos", async () =>
+        {
+            var sheet = new WrapPanel { Width = 1000, Background = Brushes.White };
+            foreach (var help in ToolHelp.All.Append(ToolHelp.DragOut))
+                foreach (var moment in new[] { .5, .85 })
+                {
+                    var demo = new ToolDemo(help.Kind) { Margin = new Thickness(4) };
+                    demo.ShowFrame(moment);
+                    sheet.Children.Add(demo);
+                }
+            await RenderElement(sheet, 1000, double.NaN, Path.Combine(outDir, "16_tool_demos.png"));
+
+            var card = (StackPanel)ToolHelpViews.HoverCard(ToolHelp.For(ToolKind.Arrow));
+            TextElement.SetForeground(card, Brushes.White);
+            ((ToolDemo)card.Children[0]).ShowFrame(.5);
+            await RenderElement(new Border { Background = new SolidColorBrush(Color.FromRgb(0x2C, 0x2C, 0x2E)), Padding = new Thickness(12), Child = card }, 320, double.NaN, Path.Combine(outDir, "17_tool_card.png"));
+        });
+
+        await Step("hover_card_follows_the_mouse", async () =>
+        {
+            var win = await OffscreenEditor(new EditorDocument(sample.Clone(), 1.0), 1360, 900);
+            void Hover(ToolKind kind, System.Windows.RoutedEvent e) => win.ToolButton(kind).RaiseEvent(new System.Windows.Input.MouseEventArgs(System.Windows.Input.Mouse.PrimaryDevice, Environment.TickCount) { RoutedEvent = e });
+            void Expect(ToolKind? kind, string when) { if (win.HoverCards.Shown?.Kind != kind) throw new Exception($"{when}: showing {win.HoverCards.Shown?.Name ?? "nothing"}"); }
+            var enter = System.Windows.Input.Mouse.MouseEnterEvent;
+            var leave = System.Windows.Input.Mouse.MouseLeaveEvent;
+            win.Activate();
+
+            Hover(ToolKind.Arrow, enter);
+            await Task.Delay(120);
+            Expect(null, "before the first card's delay");
+            await Task.Delay(500);
+            Expect(ToolKind.Arrow, "after the delay");
+
+            // Straight across the toolbar, the way a real mouse does it, with no pause between buttons.
+            foreach (var next in new[] { ToolKind.Rectangle, ToolKind.Oval, ToolKind.Line, ToolKind.Text, ToolKind.Ruler, ToolKind.Backdrop })
+            {
+                var current = win.HoverCards.Shown!.Kind!.Value;
+                Hover(current, leave);
+                Hover(next, enter);
+                Expect(next, "moving straight across");
+                await Task.Delay(40);
+            }
+
+            Hover(ToolKind.Backdrop, leave);
+            await Task.Delay(300);
+            Expect(null, "after leaving the toolbar");
+            win.Close();
+        });
+
+        await Step("backdrop_slider_and_easing", async () =>
+        {
+            var doc = new EditorDocument(sample.Crop(300, 120, 760, 480), 1.0) { Backdrop = Backdrop.Default with { Preset = 0, Padding = 20 } };
+            var win = await OffscreenEditor(doc, 1360, 900);
+            win.Canvas.Tool = ToolKind.Backdrop;
+            await Idle();
+            win.Canvas.ZoomToFit();
+            await Idle();
+
+            var slider = win.StylePanel.Children.OfType<Slider>().First();
+            slider.Value = 40;
+            slider.Value = 90;
+            slider.Value = 160;
+            if (!ReferenceEquals(slider, win.StylePanel.Children.OfType<Slider>().First())) throw new Exception("the slider was replaced while it was being dragged");
+            if (doc.Backdrop!.Padding != 160) throw new Exception("the document didn't get the new value right away");
+
+            var widths = new List<double>();
+            var sw = System.Diagnostics.Stopwatch.StartNew();
+            bool saved = false;
+            while (win.Canvas.ShownBackdrop is { } shown && sw.ElapsedMilliseconds < 3000)
+            {
+                widths.Add(shown.Outer.Width);
+                if (!saved && widths.Count > 3)
+                {
+                    saved = true;
+                    Save(win.Content as FrameworkElement, Path.Combine(outDir, "18_backdrop_easing_mid.png"));
+                }
+                await Task.Delay(8);
+            }
+            log.Add($"info backdrop eased through {widths.Distinct().Count()} sizes in {sw.ElapsedMilliseconds} ms: {string.Join(", ", widths.Distinct().Take(14).Select(w => w.ToString("0")))}");
+            if (win.Canvas.ShownBackdrop != null) throw new Exception("never settled");
+            if (widths.Distinct().Count() < 5) throw new Exception($"only {widths.Distinct().Count()} steps");
+            for (int i = 1; i < widths.Count; i++) if (widths[i] < widths[i - 1]) throw new Exception("went backwards");
+            await Idle();
+            Save(win.Content as FrameworkElement, Path.Combine(outDir, "19_backdrop_easing_end.png"));
+
+            win.Canvas.ChangeBackdropSmoothly(() => { doc.Backdrop = null; doc.RaiseChanged(); });
+            sw.Restart();
+            while (win.Canvas.ShownBackdrop != null && sw.ElapsedMilliseconds < 3000) await Task.Delay(8);
+            if (win.Canvas.ShownBackdrop != null) throw new Exception("removing never settled");
+            win.Close();
         });
 
         await Step("effects_on_text", async () =>

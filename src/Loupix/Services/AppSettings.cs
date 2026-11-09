@@ -99,6 +99,9 @@ public sealed class AppSettings
     public bool ShowTrayIcon { get; set; } = true;
     public bool ShowSplash { get; set; } = true;
     public bool FirstRunDone { get; set; }
+    /// <summary>Set on a fresh install so the first capture gets its one-time tip. Existing users never see it.</summary>
+    public bool FirstCaptureTipPending { get; set; }
+    public bool AnimatedToolTips { get; set; } = true;
 
     // Updates
     public bool CheckForUpdates { get; set; } = true;

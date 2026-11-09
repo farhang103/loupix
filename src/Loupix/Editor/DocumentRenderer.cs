@@ -33,6 +33,51 @@ public static class BackdropPresets
     }
 }
 
+/// <summary>A backdrop as it appears on screen. The editor eases between two of these when a setting changes.</summary>
+public readonly record struct BackdropLook(Rect Outer, Color A, Color B, double Radius, double Shadow)
+{
+    /// <summary>The look a document should end up with. No backdrop is an invisible one that hugs the canvas.</summary>
+    public static BackdropLook Of(EditorDocument doc)
+    {
+        if (doc.Backdrop is not { } bd) return new BackdropLook(doc.Canvas, Colors.Transparent, Colors.Transparent, 0, 0);
+        var preset = BackdropPresets.All[Math.Clamp(bd.Preset, 0, BackdropPresets.All.Count - 1)];
+        return new BackdropLook(DocumentRenderer.OuterBounds(doc), preset.A, preset.B, bd.Radius * doc.Scale, bd.Shadow);
+    }
+
+    public static BackdropLook Lerp(BackdropLook from, BackdropLook to, double t)
+    {
+        double L(double a, double b) => a + (b - a) * t;
+        var outer = new Rect(L(from.Outer.X, to.Outer.X), L(from.Outer.Y, to.Outer.Y), L(from.Outer.Width, to.Outer.Width), L(from.Outer.Height, to.Outer.Height));
+        return new BackdropLook(outer, Mix(from.A, to.A, t), Mix(from.B, to.B, t), L(from.Radius, to.Radius), L(from.Shadow, to.Shadow));
+    }
+
+    private static Color Mix(Color from, Color to, double t)
+    {
+        // Fading in or out keeps the visible color, instead of passing through the white hidden in "transparent".
+        if (from.A == 0) from = Color.FromArgb(0, to.R, to.G, to.B);
+        if (to.A == 0) to = Color.FromArgb(0, from.R, from.G, from.B);
+        // Rounds toward the target: on fast screens each step is tiny, and plain rounding would stall just short of it.
+        byte L(byte a, byte b) => (byte)(b > a ? Math.Ceiling(a + (b - a) * t) : Math.Floor(a + (b - a) * t));
+        return Color.FromArgb(L(from.A, to.A), L(from.R, to.R), L(from.G, to.G), L(from.B, to.B));
+    }
+
+    public bool IsCloseTo(BackdropLook other)
+    {
+        static bool Near(Color a, Color b) => (a.A <= 2 && b.A <= 2) || Math.Abs(a.A - b.A) <= 2 && Math.Abs(a.R - b.R) <= 2 && Math.Abs(a.G - b.G) <= 2 && Math.Abs(a.B - b.B) <= 2;
+        return Math.Abs(Outer.X - other.Outer.X) < 0.5 && Math.Abs(Outer.Y - other.Outer.Y) < 0.5
+            && Math.Abs(Outer.Width - other.Outer.Width) < 0.5 && Math.Abs(Outer.Height - other.Outer.Height) < 0.5
+            && Math.Abs(Radius - other.Radius) < 0.25 && Math.Abs(Shadow - other.Shadow) < 0.005
+            && Near(A, other.A) && Near(B, other.B);
+    }
+
+    public Brush MakeBrush()
+    {
+        Brush brush = A == B ? new SolidColorBrush(A) : new LinearGradientBrush(A, B, new Point(0, 0), new Point(1, 1));
+        brush.Freeze();
+        return brush;
+    }
+}
+
 public static class DocumentRenderer
 {
     /// <summary>The full area that gets exported: the canvas, plus backdrop padding when a backdrop is on.</summary>
@@ -59,13 +104,12 @@ public static class DocumentRenderer
         var canvas = doc.Canvas;
         bool clipped = false;
 
-        if (doc.Backdrop is { } bd)
+        var look = rc.EasedBackdrop ?? (doc.Backdrop != null ? BackdropLook.Of(doc) : null);
+        if (look is { } shown)
         {
-            var outer = OuterBounds(doc);
-            dc.DrawRectangle(BackdropPresets.BrushFor(bd.Preset), null, outer);
-            double radius = bd.Radius * doc.Scale;
-            DrawShadow(dc, canvas, radius, bd.Shadow, doc.Scale);
-            dc.PushClip(new RectangleGeometry(canvas, radius, radius));
+            dc.DrawRectangle(shown.MakeBrush(), null, shown.Outer);
+            DrawShadow(dc, canvas, shown.Radius, shown.Shadow, doc.Scale);
+            dc.PushClip(new RectangleGeometry(canvas, shown.Radius, shown.Radius));
             clipped = true;
         }
 

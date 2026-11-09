@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
@@ -26,7 +27,7 @@ public sealed class EditorCanvas : Canvas
     private RectI? _marquee;
     private Annotation? _selected;
     private Annotation? _creating;
-    private enum Drag { None, Pan, Marquee, MoveMarquee, MarqueeHandle, Create, MoveObject, ObjectHandle, ZoomRect }
+    private enum Drag { None, Pan, Marquee, MoveMarquee, MarqueeHandle, Create, MoveObject, ObjectHandle, ZoomRect, Measure }
     private Drag _drag;
     private Point _dragStartImg, _dragStartView, _lastImg;
     private Vector _panAtDragStart;
@@ -77,6 +78,7 @@ public sealed class EditorCanvas : Canvas
         set
         {
             if (_doc != null) _doc.Changed -= OnDocChanged;
+            StopEasingBackdrop();
             CommitText();
             _doc = value!;
             if (_doc != null) _doc.Changed += OnDocChanged;
@@ -160,23 +162,86 @@ public sealed class EditorCanvas : Canvas
     public void ZoomToFit(bool allowUpscale = false)
     {
         if (_doc == null || ActualWidth < 10) return;
-        var b = DocumentRenderer.OuterBounds(_doc);
+        var (zoom, center) = FitFor(DocumentRenderer.OuterBounds(_doc), allowUpscale);
+        SetZoom(zoom, null);
+        CenterOn(center);
+        _userZoomed = false;
+    }
+
+    private (double Zoom, Point Center) FitFor(Rect b, bool allowUpscale)
+    {
+        var center = new Point(b.X + b.Width / 2, b.Y + b.Height / 2);
         // Shottr opens captures that fit at exactly 100%, with no margin.
-        if (!allowUpscale && b.Width / DpiScale <= ActualWidth + 0.5 && b.Height / DpiScale <= ActualHeight + 0.5)
-        {
-            SetZoom(1, null);
-            CenterOn(new Point(b.X + b.Width / 2, b.Y + b.Height / 2));
-            _userZoomed = false;
-            return;
-        }
+        if (!allowUpscale && b.Width / DpiScale <= ActualWidth + 0.5 && b.Height / DpiScale <= ActualHeight + 0.5) return (1, center);
         double margin = 24;
         double sx = (ActualWidth - margin * 2) / b.Width, sy = (ActualHeight - margin * 2) / b.Height;
-        double viewScale = Math.Min(sx, sy);
-        double z = viewScale * DpiScale;
+        double z = Math.Min(sx, sy) * DpiScale;
         if (!allowUpscale) z = Math.Min(z, 1);
-        SetZoom(z, null);
-        CenterOn(new Point(b.X + b.Width / 2, b.Y + b.Height / 2));
+        return (z, center);
+    }
+
+    // ---------------- smooth backdrop changes ----------------
+
+    private const double EaseTimeConstantMs = 55; // about a quarter of a second to settle, and it keeps up with a dragged slider
+    private readonly Stopwatch _easeClock = new();
+    private BackdropLook? _shownBackdrop;
+    private Point _shownCenter;
+
+    internal BackdropLook? ShownBackdrop => _shownBackdrop;
+
+    /// <summary>Applies a backdrop change at once, while the picture and the view glide to it from wherever they are now.</summary>
+    public void ChangeBackdropSmoothly(Action apply)
+    {
+        if (_doc == null) return;
+        if (!SystemParameters.ClientAreaAnimation || !IsVisible || ActualWidth < 10)
+        {
+            apply();
+            ZoomToFit();
+            return;
+        }
+        bool alreadyEasing = _shownBackdrop != null;
+        if (!alreadyEasing)
+        {
+            _shownBackdrop = BackdropLook.Of(_doc);
+            _shownCenter = ViewToImage(new Point(ActualWidth / 2, ActualHeight / 2));
+        }
+        apply();
         _userZoomed = false;
+        if (alreadyEasing) return;
+        _easeClock.Restart();
+        CompositionTarget.Rendering += OnEaseFrame;
+    }
+
+    private void OnEaseFrame(object? sender, EventArgs e)
+    {
+        if (_doc == null || _shownBackdrop is not { } shown) { StopEasingBackdrop(); return; }
+        double k = 1 - Math.Exp(-_easeClock.Elapsed.TotalMilliseconds / EaseTimeConstantMs);
+        _easeClock.Restart();
+
+        var target = BackdropLook.Of(_doc);
+        var (targetZoom, targetCenter) = FitFor(target.Outer, false);
+        var next = BackdropLook.Lerp(shown, target, k);
+        double zoom = _zoom + (targetZoom - _zoom) * k;
+        var center = _shownCenter + (targetCenter - _shownCenter) * k;
+        if (next.IsCloseTo(target) && Math.Abs(zoom - targetZoom) < 0.002 && (center - targetCenter).Length < 0.5)
+        {
+            StopEasingBackdrop();
+            ZoomToFit();
+            return;
+        }
+
+        _shownBackdrop = next;
+        _shownCenter = center;
+        SetZoom(zoom, null);
+        _pan = new Vector(ActualWidth / 2 - center.X * ViewScale, ActualHeight / 2 - center.Y * ViewScale); // not snapped to pixels, so it glides
+    }
+
+    private void StopEasingBackdrop()
+    {
+        if (_shownBackdrop == null) return;
+        _shownBackdrop = null;
+        CompositionTarget.Rendering -= OnEaseFrame;
+        InvalidateVisual();
     }
 
     public void ZoomTo100() { SetZoom(1, new Point(ActualWidth / 2, ActualHeight / 2)); _userZoomed = true; }
@@ -260,7 +325,7 @@ public sealed class EditorCanvas : Canvas
         double vs = ViewScale;
 
         dc.PushTransform(new MatrixTransform(vs, 0, 0, vs, _pan.X, _pan.Y));
-        var rc = new RenderContext { Document = _doc, ViewScale = vs, Editing = _editingText };
+        var rc = new RenderContext { Document = _doc, ViewScale = vs, Editing = _editingText, EasedBackdrop = _shownBackdrop };
         DocumentRenderer.Render(dc, rc, showCanvasPattern: true);
         if (_creating != null && !_doc.Annotations.Contains(_creating))
         {
@@ -516,13 +581,16 @@ public sealed class EditorCanvas : Canvas
             ImprintGuide(g, img);
             return;
         }
-        if (_measurement is var (ma, mb, ml) && (_measureAxis != null))
+        if (_tool == ToolKind.Ruler)
         {
-            _doc.Checkpoint();
-            var m = new MeasureAnnotation { Start = ma, End = mb, Label = ml, Color = Color.FromRgb(0xFF, 0x2D, 0x78) };
-            _doc.Annotations.Add(m);
-            _doc.RaiseChanged();
-            if (_tool != ToolKind.Ruler) { _measureAxis = null; _measurement = null; }
+            BeginDrag(Drag.Measure); // a click still imprints the edge-to-edge measurement, on mouse up
+            return;
+        }
+        if (_measurement != null && _measureAxis != null)
+        {
+            ImprintMeasurement();
+            _measureAxis = null;
+            _measurement = null;
             return;
         }
 
@@ -767,9 +835,13 @@ public sealed class EditorCanvas : Canvas
             case Drag.None:
                 UpdateHoverCursor(view, img);
                 break;
+            case Drag.Measure when _dragMoved:
+                var (from, to, length) = MeasureAnnotation.FromDrag(_dragStartImg, img);
+                _measurement = (from, to, Length(length));
+                break;
         }
 
-        if (_measureAxis != null) UpdateMeasurement();
+        if (_measureAxis != null && _drag != Drag.Measure) UpdateMeasurement();
         ReportHover(img);
         InvalidateVisual();
     }
@@ -831,6 +903,9 @@ public sealed class EditorCanvas : Canvas
 
         switch (drag)
         {
+            case Drag.Measure when _measurement != null:
+                ImprintMeasurement();
+                break;
             case Drag.Marquee when !_dragMoved:
                 _marquee = null;
                 break;
@@ -967,6 +1042,14 @@ public sealed class EditorCanvas : Canvas
     }
 
     // ---------------- measurement, guides, colour ----------------
+
+    private void ImprintMeasurement()
+    {
+        if (_measurement is not var (a, b, label)) return;
+        _doc.Checkpoint();
+        _doc.Annotations.Add(new MeasureAnnotation { Start = a, End = b, Label = label, Color = Color.FromRgb(0xFF, 0x2D, 0x78) });
+        _doc.RaiseChanged();
+    }
 
     private void UpdateMeasurement()
     {
