@@ -83,6 +83,36 @@ public static class SystemIntegration
 
     public static string ExePath => Environment.ProcessPath ?? Path.Combine(AppContext.BaseDirectory, "Loupix.exe");
 
+    private const int NoPackage = 15700; // APPMODEL_ERROR_NO_PACKAGE
+    private const string StartupTaskId = "LoupixStartup"; // packaging/store/AppxManifest.xml
+
+    [DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
+    private static extern int GetCurrentPackageFullName(ref int length, StringBuilder? name);
+
+    /// <summary>True for the Microsoft Store version, where Windows handles sign-in, links and updates from the package's manifest.</summary>
+    public static bool IsPackaged { get; } = DetectPackaged();
+
+    private static bool DetectPackaged()
+    {
+        int length = 0;
+        return GetCurrentPackageFullName(ref length, null) != NoPackage;
+    }
+
+    /// <summary>Where File Explorer can find the settings. Windows keeps new AppData files from a packaged app in a private folder.</summary>
+    public static string SettingsFolderOnDisk
+    {
+        get
+        {
+            if (!IsPackaged) return SettingsStore.Directory;
+            var redirected = Path.Combine(Windows.Storage.ApplicationData.Current.LocalCacheFolder.Path, "Roaming", "Loupix");
+            return Directory.Exists(redirected) ? redirected : SettingsStore.Directory;
+        }
+    }
+
+    // On a worker thread, because blocking on these from the UI thread would deadlock.
+    private static Windows.ApplicationModel.StartupTask StoreStartupTask() =>
+        Task.Run(async () => await Windows.ApplicationModel.StartupTask.GetAsync(StartupTaskId)).GetAwaiter().GetResult();
+
     /// <summary>Registers the loupix:// URL scheme for the current user (no admin rights needed).</summary>
     public static void RegisterUrlScheme()
     {
@@ -127,11 +157,19 @@ public static class SystemIntegration
     {
         get
         {
+            if (IsPackaged) return StoreStartupTask().State is Windows.ApplicationModel.StartupTaskState.Enabled or Windows.ApplicationModel.StartupTaskState.EnabledByPolicy;
             using var key = Registry.CurrentUser.OpenSubKey(RunKey);
             return key?.GetValue("Loupix") is string;
         }
         set
         {
+            if (IsPackaged)
+            {
+                var task = StoreStartupTask();
+                if (value) Task.Run(async () => await task.RequestEnableAsync()).GetAwaiter().GetResult();
+                else task.Disable();
+                return;
+            }
             using var key = Registry.CurrentUser.CreateSubKey(RunKey);
             if (value) key.SetValue("Loupix", $"\"{ExePath}\" --background");
             else key.DeleteValue("Loupix", false);
