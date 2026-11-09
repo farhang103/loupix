@@ -60,6 +60,8 @@ public sealed class AppSettings
     public EscapeBehavior EscapeBehavior { get; set; } = EscapeBehavior.Copy;
     public bool DefaultZoom100 { get; set; }
     public bool EditorAlwaysOnTop { get; set; }
+    /// <summary>Reopening the editor starts empty instead of bringing back the screenshot that was closed.</summary>
+    public bool HidePreviousScreenshot { get; set; }
     public string ColorFormat { get; set; } = "Hex";
     public bool MeasureInPhysicalPixels { get; set; }
     public NotificationStyle Notifications { get; set; } = NotificationStyle.Custom;

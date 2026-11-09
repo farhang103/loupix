@@ -396,6 +396,7 @@ public sealed class SettingsWindow : Window
         var editor = Group(p, "Editor");
         Switch(editor, "Open captures at 100% zoom when they fit", S.DefaultZoom100, v => S.DefaultZoom100 = v, "Otherwise they fit to the window.");
         Switch(editor, "Keep the editor window on top", S.EditorAlwaysOnTop, v => S.EditorAlwaysOnTop = v);
+        Switch(editor, "Hide my previous screenshot when I reopen Loupix", S.HidePreviousScreenshot, v => S.HidePreviousScreenshot = v, "The editor opens empty, so nobody next to you sees it. Copy or save a screenshot before closing it if you want to keep it.");
         Switch(editor, "Measure in physical pixels", S.MeasureInPhysicalPixels, v => S.MeasureInPhysicalPixels = v, "Instead of scaled (logical) pixels.");
         Row(editor, "Color format", Choice(S.ColorFormat, Features.ColorFormats().Select(f => (f.Key, f.Name)), v => S.ColorFormat = v, 300));
 

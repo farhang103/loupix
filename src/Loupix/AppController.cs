@@ -260,7 +260,7 @@ public sealed class AppController
                             ? WindowCapture.ApplyStyle(WindowCapture.Capture(r.Window, frozen, origin, r.Monitor.Scale), Settings.WindowCaptureStyle, r.Monitor.Scale, r.Window.Bounds)
                             : frozen.Crop(r.Rect.X - origin.X, r.Rect.Y - origin.Y, r.Rect.Width, r.Rect.Height);
                         if (r.Window == null) _lastArea = r.Rect;
-                        if (action == CaptureAction.AddCapture) AppendToEditor(px, r.Monitor.Scale);
+                        if (action == CaptureAction.AddCapture) AppendToEditor(px, r.Monitor.Scale, editorWasVisible);
                         else Deliver(px, r.Monitor, CaptureAction.Area, then);
                         break;
                     }
@@ -371,9 +371,9 @@ public sealed class AppController
         t.ShowAtCorner(Settings.ThumbnailCorner);
     }
 
-    private void AppendToEditor(PixelBuffer px, double scale)
+    private void AppendToEditor(PixelBuffer px, double scale, bool editorWasVisible)
     {
-        var doc = _editor?.Document;
+        var doc = PreviousDocument(editorWasVisible);
         if (doc == null)
         {
             Deliver(px, Monitors.AtCursor(), CaptureAction.Area, ThenAction.Edit);
@@ -403,9 +403,14 @@ public sealed class AppController
     /// <summary>Reopen: the last document, or an empty editor (like clicking Shottr's Dock icon).</summary>
     public void ShowEditor()
     {
-        if (_editor?.Document != null) _editor.Open(_editor.Document, Monitors.AtCursor());
+        var doc = PreviousDocument(_editor?.IsVisible == true);
+        if (doc != null) _editor!.Open(doc, Monitors.AtCursor());
         else _editor?.ShowEmpty(Monitors.AtCursor());
     }
+
+    /// <summary>The document to carry on with. One the user has closed stays away if they asked not to see it again.</summary>
+    private EditorDocument? PreviousDocument(bool editorWasVisible) =>
+        editorWasVisible || !Settings.HidePreviousScreenshot ? _editor?.Document : null;
 
     public void LoadClipboard()
     {
