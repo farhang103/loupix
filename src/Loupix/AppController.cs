@@ -385,7 +385,13 @@ public sealed class AppController
         }
         BitmapSource? bmp = null;
         BitmapSource Bmp() => bmp ??= ImageIO.ToBitmapSource96(px);
-        if (then.HasFlag(ThenAction.Copy)) { ImageIO.CopyToClipboard(Bmp()); if (!then.HasFlag(ThenAction.Edit) && !then.HasFlag(ThenAction.Thumbnail)) Notify("Copied to clipboard", NotificationKind.Copy); }
+        bool copied = false;
+        if (then.HasFlag(ThenAction.Copy))
+        {
+            copied = ImageIO.CopyToClipboard(Bmp());
+            if (copied) _editor!.RememberCopiedCapture(doc);
+            if (!then.HasFlag(ThenAction.Edit) && !then.HasFlag(ThenAction.Thumbnail)) Notify("Copied to clipboard", NotificationKind.Copy);
+        }
         if (then.HasFlag(ThenAction.Save))
         {
             var path = SaveImage(Bmp(), monitor.Scale, null, doc.CreatedAt);
@@ -399,7 +405,7 @@ public sealed class AppController
             {
                 Settings.FirstCaptureTipPending = false;
                 SettingsStore.Save();
-                _editor.ShowCoach("That's your first screenshot", "Mark it up if you like, then press Esc to copy it and close.");
+                _editor.ShowFirstCaptureTip(copied);
             }
         }
         else if (then.HasFlag(ThenAction.Thumbnail)) ShowThumbnail(doc, monitor);

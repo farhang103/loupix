@@ -49,7 +49,7 @@ public sealed class AppSettings
     // After capture
     public AfterCapture AfterFullscreen { get; set; } = AfterCapture.Editor;
     public AfterCapture AfterArea { get; set; } = AfterCapture.Editor;
-    public bool AutoCopy { get; set; }
+    public bool AutoCopy { get; set; } = true;
     public bool AutoSave { get; set; }
     public bool ThumbnailPersist { get; set; }
     public ThumbnailCorner ThumbnailCorner { get; set; } = ThumbnailCorner.BottomRight;

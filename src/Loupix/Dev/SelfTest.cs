@@ -311,6 +311,18 @@ public static class SelfTest
             win.Close();
         });
 
+        await Step("first_capture_tip", async () =>
+        {
+            foreach (var (w, h, name) in new[] { (1000.0, 640.0, "normal"), (560.0, 340.0, "smallest") })
+            {
+                var win = await OffscreenEditor(new EditorDocument(sample.Clone(), 1.0), w, h);
+                win.ShowFirstCaptureTip(copied: true);
+                await Idle();
+                Save(win.Content as FrameworkElement, Path.Combine(outDir, $"12_first_capture_tip_{name}.png"));
+                win.Close();
+            }
+        });
+
         await Step("toolbar_icons", async () =>
         {
             var panel = new WrapPanel { Background = (Brush)Application.Current.FindResource("BarBrush"), Width = 760 };
