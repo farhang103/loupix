@@ -86,6 +86,14 @@ Filename: "{sys}\taskkill.exe"; Parameters: "/F /IM Loupix.exe"; Flags: runhidde
 
 [Run]
 Filename: "{app}\Loupix.exe"; Description: "Open Loupix now"; Flags: nowait postinstall skipifsilent
+; Loupix's own updater asks for this. Other silent installs (like the check in CI) must not leave Loupix running.
+Filename: "{app}\Loupix.exe"; Parameters: "--updated"; Flags: nowait; Check: RelaunchRequested
+
+[Code]
+function RelaunchRequested: Boolean;
+begin
+  Result := ExpandConstant('{param:relaunch|0}') = '1';
+end;
 
 #ifndef Smoke
 [Code]

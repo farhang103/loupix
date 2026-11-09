@@ -201,10 +201,11 @@ public sealed class SettingsWindow : Window
         rows.Children.Add(row);
     }
 
-    private static void Row(StackPanel rows, string label, FrameworkElement control, string? note = null)
+    private static Grid RowContent(string label, FrameworkElement control, string? note = null, UIElement? below = null)
     {
         var text = new StackPanel { VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0, 0, 16, 0) };
         text.Children.Add(new TextBlock { Text = label, TextWrapping = TextWrapping.Wrap });
+        if (below != null) text.Children.Add(below);
         if (note != null) text.Children.Add(Note(note));
         var g = new Grid();
         g.ColumnDefinitions.Add(new ColumnDefinition());
@@ -214,16 +215,22 @@ public sealed class SettingsWindow : Window
         Grid.SetColumn(control, 1);
         g.Children.Add(text);
         g.Children.Add(control);
-        AddRow(rows, g);
+        return g;
     }
 
-    private static void Switch(StackPanel rows, string label, bool value, Action<bool> set, string? note = null)
+    private static void Row(StackPanel rows, string label, FrameworkElement control, string? note = null)
+    {
+        AddRow(rows, RowContent(label, control, note));
+    }
+
+    private static ToggleButton Switch(StackPanel rows, string label, bool value, Action<bool> set, string? note = null)
     {
         var s = new ToggleButton { IsChecked = value };
         s.SetResourceReference(StyleProperty, "UiSwitch");
         s.Checked += (_, _) => { set(true); SettingsStore.Save(); };
         s.Unchecked += (_, _) => { set(false); SettingsStore.Save(); };
         Row(rows, label, s, note);
+        return s;
     }
 
     private static ComboBox Choice<T>(T current, IEnumerable<(T Value, string Name)> options, Action<T> set, double width = 230) where T : notnull
@@ -396,6 +403,7 @@ public sealed class SettingsWindow : Window
         var editor = Group(p, "Editor");
         Switch(editor, "Open captures at 100% zoom when they fit", S.DefaultZoom100, v => S.DefaultZoom100 = v, "Otherwise they fit to the window.");
         Switch(editor, "Keep the editor window on top", S.EditorAlwaysOnTop, v => S.EditorAlwaysOnTop = v);
+        Switch(editor, "Hide my previous screenshot when I reopen Loupix", S.HidePreviousScreenshot, v => S.HidePreviousScreenshot = v, "The editor opens empty, so nobody next to you sees it. Copy or save a screenshot before closing it if you want to keep it.");
         Switch(editor, "Measure in physical pixels", S.MeasureInPhysicalPixels, v => S.MeasureInPhysicalPixels = v, "Instead of scaled (logical) pixels.");
         Row(editor, "Color format", Choice(S.ColorFormat, Features.ColorFormats().Select(f => (f.Key, f.Name)), v => S.ColorFormat = v, 300));
 
@@ -444,6 +452,57 @@ public sealed class SettingsWindow : Window
         return p;
     }
 
+    private void AddUpdates(StackPanel page)
+    {
+        var updater = AppController.Instance.Updates;
+        var rows = Group(page, "Updates");
+        var status = new Border();
+        AddRow(rows, status);
+        var automatic = Switch(rows, "Check for updates automatically", S.CheckForUpdates, v => { S.CheckForUpdates = v; if (!v && updater.Status == UpdateStatus.Available) UpdateCard.CloseCurrent(); }, "About once a day, Loupix asks GitHub for the latest version. Your screenshots are never sent. With this off, Loupix won't tell you about new versions.");
+
+        // The update card can turn this off while Settings is open.
+        Action followSetting = () => automatic.IsChecked = S.CheckForUpdates;
+        SettingsStore.Changed += followSetting;
+        Closed += (_, _) => SettingsStore.Changed -= followSetting;
+
+        Button Act(string text, Action click, bool primary = false)
+        {
+            var b = new Button { Content = text };
+            if (primary) b.Style = (Style)FindResource("UiPrimary");
+            b.Click += (_, _) => click();
+            return b;
+        }
+        Button Check(string text = "Check for updates") => Act(text, () => _ = updater.CheckAsync(userAsked: true));
+        static string? Checked() => S.LastUpdateCheck?.ToLocalTime() is not { } t ? null : t.Date == DateTime.Today ? $"Checked today at {t:t}" : $"Checked on {t:d}";
+
+        UpdateStatus? shown = null;
+        UpdateProgressBar? bar = null;
+        void Refresh()
+        {
+            if (updater.Status == shown)
+            {
+                if (bar != null) bar.Value = updater.Progress; // only the bar, or a click on Cancel could land on a replaced button
+                return;
+            }
+            shown = updater.Status;
+            bar = shown == UpdateStatus.Downloading ? new UpdateProgressBar { Value = updater.Progress, Margin = new Thickness(0, 8, 0, 4) } : null;
+            var version = updater.Update?.Version.ToString(3);
+            status.Child = shown switch
+            {
+                UpdateStatus.Available => RowContent($"Loupix {version} is available", Act("Update", AppController.Instance.BeginUpdate, primary: true), updater.Update?.Highlight),
+                UpdateStatus.Downloading => RowContent($"Downloading Loupix {version}", Act("Cancel", updater.CancelInstall), "Loupix will close and reopen when it's ready.", bar),
+                UpdateStatus.WaitingForEditor => RowContent($"Loupix {version} is ready to install", Act("Cancel", updater.CancelInstall), "It will install when you close the editor."),
+                UpdateStatus.Checking => RowContent("Checking for updates…", new Button { Content = "Check for updates", IsEnabled = false }),
+                UpdateStatus.UpToDate => RowContent("You're up to date", Check(), Checked()),
+                UpdateStatus.CheckFailed => RowContent("Couldn't check for updates", Check("Try again"), "Check your internet connection and try again."),
+                _ => RowContent("Check for a new version", Check(), Checked()),
+            };
+        }
+        Refresh();
+        updater.Changed += Refresh;
+        Closed += (_, _) => updater.Changed -= Refresh;
+    }
+
     private UIElement About()
     {
         var p = Page("About");
@@ -457,6 +516,8 @@ public sealed class SettingsWindow : Window
         identity.Children.Add(logo);
         identity.Children.Add(text);
         AddRow(app, identity);
+
+        AddUpdates(p);
 
         var links = Group(p, "Links");
         AddRow(links, Note("Automate captures with loupix:// links, e.g. loupix://grab/area?then=copy,save — the same verbs as Shottr: grab/fullscreen, grab/area, grab/repeat, grab/window, grab/scrolling, grab/scrolling/reverse, grab/delayed=5, grab/append, ocr, load/clipboard, load/file, settings, show. then= accepts copy, save, edit, pin, thumbnail."));

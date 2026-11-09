@@ -11,6 +11,7 @@ using Loupix.Core.Imaging;
 using Loupix.Editor;
 using Loupix.Imaging;
 using Loupix.Services;
+using Loupix.Services.Updates;
 using Loupix.UI;
 
 namespace Loupix.Dev;
@@ -114,6 +115,29 @@ public static class SelfTest
                 }
             }
             w.Close();
+        });
+
+        await Step("update_card", async () =>
+        {
+            var updates = AppController.Instance.Updates;
+            var release = new AvailableUpdate(new Version(1, 3, 0), "https://example.test", "https://example.test/setup.exe", null, "New: hide your previous screenshot when you reopen Loupix.");
+            using var hk = new HotkeyManager();
+            var settings = new SettingsWindow(hk) { ShowActivated = false, WindowStartupLocation = WindowStartupLocation.Manual, Left = -32000, Top = -32000 };
+            settings.Show();
+            settings.Sections[^1].IsChecked = true;
+            updates.SetForTest(UpdateStatus.Available, release, 0);
+            var card = new UpdateCard(updates, () => { }) { ShowActivated = false, Left = -32000, Top = -32000 };
+            card.Show();
+            foreach (var (status, progress, name) in new[] { (UpdateStatus.Available, 0.0, "available"), (UpdateStatus.Downloading, 0.64, "downloading"), (UpdateStatus.WaitingForEditor, 1.0, "waiting") })
+            {
+                updates.SetForTest(status, release, progress);
+                await Idle();
+                Save((FrameworkElement)card.Content, Path.Combine(outDir, $"16_update_card_{name}.png"), Color.FromRgb(0x1F, 0x3A, 0x52));
+                Save((FrameworkElement)settings.Content, Path.Combine(outDir, $"16_update_about_{name}.png"), Color.FromRgb(0x1C, 0x1C, 0x1E));
+            }
+            card.Close();
+            settings.Close();
+            updates.SetForTest(UpdateStatus.Idle, null, 0);
         });
 
         await Step("dialogs", async () =>

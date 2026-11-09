@@ -157,6 +157,7 @@ public partial class EditorWindow : Window
             + "Ctrl+V pastes an image · drop an image file here · Ctrl+O opens one";
         SizeText.Text = "—";
         ZoomText.Text = "";
+        Title = "Loupix"; // the previous document's file name must not linger in the taskbar
         StyleBar.Visibility = Visibility.Collapsed;
         PlaceWindow(null, monitor);
         if (!IsVisible) Show();

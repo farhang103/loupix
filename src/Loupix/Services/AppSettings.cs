@@ -60,6 +60,8 @@ public sealed class AppSettings
     public EscapeBehavior EscapeBehavior { get; set; } = EscapeBehavior.Copy;
     public bool DefaultZoom100 { get; set; }
     public bool EditorAlwaysOnTop { get; set; }
+    /// <summary>Reopening the editor starts empty instead of bringing back the screenshot that was closed.</summary>
+    public bool HidePreviousScreenshot { get; set; }
     public string ColorFormat { get; set; } = "Hex";
     public bool MeasureInPhysicalPixels { get; set; }
     public NotificationStyle Notifications { get; set; } = NotificationStyle.Custom;
@@ -97,6 +99,12 @@ public sealed class AppSettings
     public bool ShowTrayIcon { get; set; } = true;
     public bool ShowSplash { get; set; } = true;
     public bool FirstRunDone { get; set; }
+
+    // Updates
+    public bool CheckForUpdates { get; set; } = true;
+    public DateTime? LastUpdateCheck { get; set; }
+    /// <summary>The version the user answered "Later" to, so that the card doesn't keep coming back for it.</summary>
+    public string DismissedUpdateVersion { get; set; } = "";
 
     public static Dictionary<CaptureAction, string> DefaultHotkeys() => new()
     {
