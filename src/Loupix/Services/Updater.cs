@@ -15,12 +15,11 @@ public sealed class Updater(Func<bool> editorInUse, Action quit)
 {
     private static readonly TimeSpan CheckEvery = TimeSpan.FromHours(24);
     private static readonly string Folder = Path.Combine(Path.GetTempPath(), "Loupix-Update");
-    private static readonly HttpClient Http = CreateClient();
+    public static Version CurrentVersion { get; } = typeof(Updater).Assembly.GetName().Version!;
+    private static readonly HttpClient Http = CreateClient(); // reads CurrentVersion, so it has to stay below it
 
     private DispatcherTimer? _timer;
     private CancellationTokenSource? _download;
-
-    public static Version CurrentVersion { get; } = typeof(Updater).Assembly.GetName().Version!;
 
     public UpdateStatus Status { get; private set; }
     public AvailableUpdate? Update { get; private set; }
