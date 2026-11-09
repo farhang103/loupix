@@ -21,7 +21,7 @@
 </p>
 
 <p align="center">
-  <img src="docs/assets/demo/hero.gif" width="860" alt="A recording of Loupix: pressing Alt, Shift and 2, dragging to select part of the screen, then adding a box, an arrow, a label, numbered steps, pixelation and a background in the editor">
+  <img src="docs/assets/demo/hero.gif" width="860" alt="A recording of Loupix: pressing Ctrl, Shift and D, dragging to select part of the screen, then adding a box, an arrow, a label, numbered steps, pixelation and a background in the editor">
 </p>
 
 ## What is Loupix?
