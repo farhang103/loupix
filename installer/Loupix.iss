@@ -29,6 +29,14 @@
   #define SettingsFolder "Loupix"
 #endif
 
+; Windows can only stop a program by name, so a smoke build still called Loupix.exe must not, or it would close a real Loupix.
+#define CanStopApp 1
+#ifdef Smoke
+  #if AppExe == "Loupix.exe"
+    #define CanStopApp 0
+  #endif
+#endif
+
 [Setup]
 #ifdef Smoke
 AppId={{5B1E0C52-3F0B-4D7E-9B2A-5A0CE0000000}
@@ -102,8 +110,10 @@ Source: "{#PublishDir}\*"; DestDir: "{app}"; Excludes: "*.pdb"; Flags: ignorever
 Name: "{autoprograms}\Loupix"; Filename: "{app}\{#AppExe}"
 #endif
 
+#if CanStopApp
 [UninstallRun]
 Filename: "{sys}\taskkill.exe"; Parameters: "/F /IM {#AppExe}"; Flags: runhidden; RunOnceId: "StopLoupix"
+#endif
 
 [Run]
 Filename: "{app}\{#AppExe}"; Flags: nowait skipifsilent; Check: not IsUpdate
@@ -165,11 +175,13 @@ var
   ExitCode: Integer;
 begin
   Result := '';
+#if CanStopApp
   if Updating and Exec(ExpandConstant('{sys}\taskkill.exe'), '/F /IM {#AppExe}', '', SW_HIDE, ewWaitUntilTerminated, ExitCode) and (ExitCode = 0) then
   begin
     LoupixWasRunning := True;
     Sleep(400); { let Windows release the file before it's replaced }
   end;
+#endif
 end;
 
 function UninstallKey: String;
