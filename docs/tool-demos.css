@@ -1,0 +1,124 @@
+/* The small "how does this tool work" animations. The app draws the same ones natively (src/Loupix/UI/ToolDemo.cs). */
+.td { position: relative; width: 240px; height: 135px; overflow: hidden; border-radius: 8px; background: #F4F5F7; color: #1A1A1A; font: 11px/1.2 "Segoe UI Variable Text", "Segoe UI", Inter, system-ui, sans-serif; isolation: isolate; }
+.td * { box-sizing: border-box; }
+.td-page { position: absolute; inset: 0; }
+.td-head { position: absolute; left: 0; top: 0; width: 100%; height: 20px; background: #1A2A4D; }
+.td-l { position: absolute; left: 16px; height: 6px; border-radius: 3px; background: #C9CDD6; }
+.td-btn { position: absolute; left: 16px; top: 92px; width: 62px; height: 18px; border-radius: 5px; background: #0A84FF; }
+.td-pic { position: absolute; left: 150px; top: 36px; width: 74px; height: 58px; border-radius: 5px; background: #E8873A; }
+.td-svg { position: absolute; left: 0; top: 0; z-index: 5; }
+
+.td-cur { position: absolute; left: -2px; top: -1px; width: 16px; height: 20px; z-index: 20; }
+.td-ring { position: absolute; left: -9px; top: -9px; width: 22px; height: 22px; border: 3px solid #FFB627; border-radius: 50%; opacity: 0; }
+.td-rd { animation: tdRingD 4s linear infinite; }
+.td-rk { animation: tdRingK 4s linear infinite; }
+.td-r3 { animation: tdRing3 4s linear infinite; }
+.td-r0 { display: none; }
+
+.td-cap { position: absolute; left: 8px; bottom: 8px; padding: 3px 8px; border-radius: 999px; background: #0D1630; color: #FFFFFF; font-weight: 600; opacity: 0; z-index: 21; white-space: nowrap; }
+.td-cp1 { animation: tdCap1 4s linear infinite; }
+.td-cp2 { animation: tdCap2 4s linear infinite; }
+.td-cp3 { animation: tdCap3 4s linear infinite; }
+.td-ck { animation: tdCapK 4s linear infinite; }
+.td-ck2 { animation: tdCapK2 4s linear infinite; }
+.td-ty { animation: tdCapT 4s linear infinite; }
+.td-pt { animation: tdCapP 4s linear infinite; }
+.td-pk { animation: tdCapR 4s linear infinite; }
+.td-none { display: none; }
+
+.td-grow { position: absolute; width: 0; height: 0; opacity: 0; z-index: 4; animation: tdGrow 4s ease-in-out infinite; }
+.td-rect { border: 2.5px solid #FF3B30; }
+.td-oval { border: 2.5px solid #FF3B30; border-radius: 50%; }
+.td-spot { box-shadow: 0 0 0 300px rgba(0,0,0,.58); }
+.td-mosaic { background-color: #9AA0AC; background-image: conic-gradient(#7E8594 25%, #B4BAC5 0 50%, #7E8594 0 75%, #B4BAC5 0); background-size: 14px 14px; }
+.td-wipe { background: #F4F5F7; }
+.td-hl { background: rgba(255,214,10,.7); }
+.td-marq { outline: 1.5px dashed #0A84FF; }
+.td-crop { position: absolute; left: 60px; top: 32px; width: 130px; height: 60px; box-shadow: 0 0 0 300px #1C1C1E; opacity: 0; z-index: 6; animation: tdCrop 4s steps(1) infinite; }
+.td-key { position: absolute; left: 96px; top: 54px; padding: 3px 9px; border-radius: 5px; background: #FFFFFF; color: #1A1A1A; border: 1px solid #9AA0AC; font-weight: 600; opacity: 0; z-index: 7; animation: tdKey 4s steps(1) infinite; }
+
+.td-draw { stroke-dasharray: 100; stroke-dashoffset: 100; animation: tdDraw 4s ease-in-out infinite; }
+.td-drawl { stroke-dasharray: 100; stroke-dashoffset: 100; animation: tdDraw 4s linear infinite; }
+.td-after { opacity: 0; animation: tdAfter 4s linear infinite; }
+.td-src { position: absolute; left: 46px; top: 36px; width: 28px; height: 28px; border: 2px solid #0A84FF; border-radius: 50%; opacity: 0; z-index: 5; animation: tdAfter22 4s linear infinite; }
+.td-bub { position: absolute; left: -29px; top: -29px; width: 58px; height: 58px; border-radius: 50%; background: #F4F5F7; border: 3px solid #FFFFFF; box-shadow: 0 2px 8px rgba(0,0,0,.4); overflow: hidden; opacity: 0; z-index: -1; animation: tdAfter22 4s linear infinite; }
+.td-bub i { position: absolute; left: 8px; height: 11px; border-radius: 5px; background: #9AA0AC; display: block; }
+
+.td-label { position: absolute; left: 40px; top: 48px; padding: 3px 7px; background: #FF3B30; color: #FFFFFF; border-radius: 4px; font-weight: 600; opacity: 0; z-index: 6; animation: tdLabel 4s linear infinite; }
+.td-typed { display: inline-block; overflow: hidden; white-space: nowrap; vertical-align: bottom; width: 0; animation: tdType 4s steps(9) infinite; }
+
+.td-n { position: absolute; width: 20px; height: 20px; margin: -10px 0 0 -10px; border-radius: 50%; background: #FF3B30; color: #FFFFFF; text-align: center; line-height: 20px; font-weight: 700; opacity: 0; z-index: 6; }
+.td-n1 { animation: tdN1 4s linear infinite; }
+.td-n2 { animation: tdN2 4s linear infinite; }
+.td-n3 { animation: tdN3 4s linear infinite; }
+
+.td-rr { position: absolute; top: 70px; left: 60px; height: 2px; width: 0; background: #FF2D78; z-index: 5; animation: tdRr 4s ease-in-out infinite; }
+.td-rlab { position: absolute; left: 106px; top: 50px; padding: 1px 6px; background: #FF2D78; color: #FFFFFF; border-radius: 4px; font-weight: 700; opacity: 0; z-index: 6; animation: tdLate 4s linear infinite; }
+
+.td-chip { position: absolute; left: 100px; top: 104px; display: flex; align-items: center; gap: 5px; padding: 4px 8px; background: #1C1C1E; color: #FFFFFF; border-radius: 6px; font-weight: 600; opacity: 0; z-index: 7; animation: tdChip 4s linear infinite; }
+.td-chip i { width: 10px; height: 10px; border-radius: 2px; background: #E8873A; display: block; }
+
+.td-bd { animation: tdBg 4s steps(1) infinite; }
+.td-shrink { animation: tdShrink 4s ease-out infinite; }
+.td-sws { position: absolute; left: 108px; bottom: 8px; display: flex; gap: 4px; z-index: 10; }
+.td-sws i { width: 18px; height: 18px; border-radius: 4px; border: 1px solid #FFFFFF; display: block; }
+
+.td-win { position: absolute; left: 128px; top: 12px; width: 100px; height: 96px; background: #FFFFFF; border-radius: 6px; box-shadow: 0 2px 10px rgba(0,0,0,.25); z-index: 3; }
+.td-win b { position: absolute; left: 8px; top: 7px; font-weight: 600; }
+.td-grip { position: absolute; left: 20px; top: 28px; width: 28px; height: 28px; border-radius: 6px; background: #0D1630; color: #FFFFFF; text-align: center; line-height: 28px; font-size: 14px; z-index: 4; }
+.td-ghost { position: absolute; left: 4px; top: 4px; width: 44px; height: 30px; border-radius: 4px; background: #0A84FF; opacity: 0; z-index: -1; animation: tdGhost 4s linear infinite; }
+.td-drop { position: absolute; left: 140px; top: 36px; width: 76px; height: 50px; border-radius: 4px; background: #0A84FF; opacity: 0; z-index: 4; animation: tdAfter 4s linear infinite; }
+
+.td-c-a { animation: tdCA 4s ease-in-out infinite; }
+.td-c-r { animation: tdCR 4s ease-in-out infinite; }
+.td-c-t { animation: tdCT 4s ease-in-out infinite; }
+.td-c-f { animation: tdCF 4s linear infinite; }
+.td-c-h { animation: tdCH 4s ease-in-out infinite; }
+.td-c-n { animation: tdCN 4s ease-in-out infinite; }
+.td-c-m { animation: tdCM 4s ease-in-out infinite; }
+.td-c-u { animation: tdCU 4s ease-in-out infinite; }
+.td-c-i { animation: tdCI 4s ease-in-out infinite; }
+.td-c-b { animation: tdCB 4s ease-in-out infinite; }
+.td-c-d { animation: tdCD 4s ease-in-out infinite; }
+
+@keyframes tdRingD { 0%, 21% { opacity: 0; } 22%, 68% { opacity: 1; } 69%, 100% { opacity: 0; } }
+@keyframes tdRingK { 0%, 18% { opacity: 0; transform: scale(.6); } 20%, 25% { opacity: 1; transform: scale(1); } 30%, 100% { opacity: 0; transform: scale(1.3); } }
+@keyframes tdRing3 { 0%, 18%, 27%, 40%, 49%, 62%, 71%, 100% { opacity: 0; } 20%, 25%, 42%, 47%, 64%, 69% { opacity: 1; } }
+@keyframes tdCap1 { 0%, 17% { opacity: 0; } 18%, 29% { opacity: 1; } 30%, 100% { opacity: 0; } }
+@keyframes tdCap2 { 0%, 29% { opacity: 0; } 30%, 66% { opacity: 1; } 67%, 100% { opacity: 0; } }
+@keyframes tdCap3 { 0%, 66% { opacity: 0; } 67%, 92% { opacity: 1; } 95%, 100% { opacity: 0; } }
+@keyframes tdCapK { 0%, 13% { opacity: 0; } 14%, 84% { opacity: 1; } 88%, 100% { opacity: 0; } }
+@keyframes tdCapK2 { 0%, 13% { opacity: 0; } 14%, 33% { opacity: 1; } 34%, 100% { opacity: 0; } }
+@keyframes tdCapT { 0%, 33% { opacity: 0; } 34%, 90% { opacity: 1; } 94%, 100% { opacity: 0; } }
+@keyframes tdCapP { 0%, 13% { opacity: 0; } 14%, 41% { opacity: 1; } 42%, 100% { opacity: 0; } }
+@keyframes tdCapR { 0%, 41% { opacity: 0; } 42%, 90% { opacity: 1; } 94%, 100% { opacity: 0; } }
+
+@keyframes tdGrow { 0%, 21% { opacity: 0; width: 0; height: 0; } 22% { opacity: 1; width: 0; height: 0; } 68%, 93% { opacity: 1; width: var(--tw); height: var(--th); } 97%, 100% { opacity: 0; width: var(--tw); height: var(--th); } }
+@keyframes tdCrop { 0% { opacity: 0; } 78% { opacity: 1; } 95% { opacity: 0; } }
+@keyframes tdKey { 0% { opacity: 0; } 70% { opacity: 1; } 78% { opacity: 0; } }
+@keyframes tdDraw { 0%, 22% { stroke-dashoffset: 100; opacity: 1; } 68%, 93% { stroke-dashoffset: 0; opacity: 1; } 97%, 100% { stroke-dashoffset: 0; opacity: 0; } }
+@keyframes tdAfter { 0%, 67% { opacity: 0; } 68%, 93% { opacity: 1; } 97%, 100% { opacity: 0; } }
+@keyframes tdAfter22 { 0%, 21% { opacity: 0; } 22%, 93% { opacity: 1; } 97%, 100% { opacity: 0; } }
+@keyframes tdLate { 0%, 62% { opacity: 0; } 64%, 93% { opacity: 1; } 97%, 100% { opacity: 0; } }
+@keyframes tdLabel { 0%, 25% { opacity: 0; } 26%, 93% { opacity: 1; } 97%, 100% { opacity: 0; } }
+@keyframes tdType { 0%, 32% { width: 0; } 72%, 100% { width: 54px; } }
+@keyframes tdN1 { 0%, 21% { opacity: 0; transform: scale(.4); } 24%, 93% { opacity: 1; transform: none; } 97%, 100% { opacity: 0; } }
+@keyframes tdN2 { 0%, 43% { opacity: 0; transform: scale(.4); } 46%, 93% { opacity: 1; transform: none; } 97%, 100% { opacity: 0; } }
+@keyframes tdN3 { 0%, 65% { opacity: 0; transform: scale(.4); } 68%, 93% { opacity: 1; transform: none; } 97%, 100% { opacity: 0; } }
+@keyframes tdRr { 0%, 22% { width: 0; opacity: 1; } 68%, 93% { width: 130px; opacity: 1; } 97%, 100% { width: 130px; opacity: 0; } }
+@keyframes tdChip { 0%, 26% { opacity: 0; transform: translateY(6px); } 30%, 92% { opacity: 1; transform: none; } 96%, 100% { opacity: 0; } }
+@keyframes tdBg { 0% { background: #F4F5F7; } 26% { background: #FFB627; } 96% { background: #F4F5F7; } }
+@keyframes tdShrink { 0%, 25% { transform: none; box-shadow: none; } 32%, 93% { transform: translateY(-13px) scale(.68); box-shadow: 0 6px 18px rgba(0,0,0,.35); background: #F4F5F7; } 97%, 100% { transform: none; box-shadow: none; } }
+@keyframes tdGhost { 0%, 21% { opacity: 0; } 22%, 68% { opacity: .85; } 69%, 100% { opacity: 0; } }
+
+@keyframes tdCA { 0% { transform: translate(218px, 128px); opacity: 0; } 6% { opacity: 1; } 18%, 22% { transform: translate(180px, 100px); } 68%, 92% { transform: translate(70px, 45px); opacity: 1; } 97%, 100% { transform: translate(70px, 45px); opacity: 0; } }
+@keyframes tdCR { 0% { transform: translate(218px, 128px); opacity: 0; } 6% { opacity: 1; } 18%, 22% { transform: translate(60px, 32px); } 68%, 92% { transform: translate(190px, 92px); opacity: 1; } 97%, 100% { transform: translate(190px, 92px); opacity: 0; } }
+@keyframes tdCT { 0% { transform: translate(218px, 128px); opacity: 0; } 6% { opacity: 1; } 16%, 25% { transform: translate(40px, 58px); } 36%, 92% { transform: translate(112px, 96px); opacity: 1; } 97%, 100% { transform: translate(112px, 96px); opacity: 0; } }
+@keyframes tdCF { 0% { transform: translate(218px, 128px); opacity: 0; } 6% { opacity: 1; } 18%, 22% { transform: translate(40px, 100px); } 33.5% { transform: translate(70px, 60px); } 45% { transform: translate(100px, 95px); } 56.5% { transform: translate(130px, 55px); } 68%, 92% { transform: translate(165px, 90px); opacity: 1; } 97%, 100% { transform: translate(165px, 90px); opacity: 0; } }
+@keyframes tdCH { 0% { transform: translate(218px, 128px); opacity: 0; } 6% { opacity: 1; } 18%, 22% { transform: translate(16px, 51px); } 68%, 92% { transform: translate(132px, 51px); opacity: 1; } 97%, 100% { transform: translate(132px, 51px); opacity: 0; } }
+@keyframes tdCN { 0% { transform: translate(218px, 128px); opacity: 0; } 6% { opacity: 1; } 16%, 25% { transform: translate(50px, 45px); } 38%, 47% { transform: translate(120px, 70px); } 60%, 92% { transform: translate(190px, 100px); opacity: 1; } 97%, 100% { transform: translate(190px, 100px); opacity: 0; } }
+@keyframes tdCM { 0% { transform: translate(218px, 128px); opacity: 0; } 6% { opacity: 1; } 18%, 22% { transform: translate(60px, 50px); } 68%, 92% { transform: translate(170px, 82px); opacity: 1; } 97%, 100% { transform: translate(170px, 82px); opacity: 0; } }
+@keyframes tdCU { 0% { transform: translate(218px, 128px); opacity: 0; } 6% { opacity: 1; } 18%, 22% { transform: translate(60px, 70px); } 68%, 92% { transform: translate(190px, 70px); opacity: 1; } 97%, 100% { transform: translate(190px, 70px); opacity: 0; } }
+@keyframes tdCI { 0% { transform: translate(218px, 128px); opacity: 0; } 6% { opacity: 1; } 16%, 92% { transform: translate(187px, 64px); opacity: 1; } 97%, 100% { transform: translate(187px, 64px); opacity: 0; } }
+@keyframes tdCB { 0% { transform: translate(218px, 60px); opacity: 0; } 6% { opacity: 1; } 16%, 92% { transform: translate(159px, 118px); opacity: 1; } 97%, 100% { transform: translate(159px, 118px); opacity: 0; } }
+@keyframes tdCD { 0% { transform: translate(218px, 128px); opacity: 0; } 6% { opacity: 1; } 18%, 22% { transform: translate(34px, 42px); } 68%, 92% { transform: translate(176px, 64px); opacity: 1; } 97%, 100% { transform: translate(176px, 64px); opacity: 0; } }

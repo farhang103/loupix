@@ -17,6 +17,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;700&family=Space+Grotesk:wght@500;700&display=swap">
 <link rel="stylesheet" href="site.css">
+<link rel="stylesheet" href="tool-demos.css">
 <script src="site.js" defer></script>
 </head>
 <body>
@@ -40,11 +41,43 @@
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v13"/><path d="m6 11 6 6 6-6"/><path d="M4 21h16"/></svg>
         <span data-cta-label>Download for Windows</span> <span class="cta-version" data-version>v1.3.0</span>
       </a>
-      <a class="cta only-narrow" href="https://github.com/farhang103/loupix/releases/latest">See the latest release</a>
+      <button type="button" class="cta only-narrow" data-copy-link>Copy the link for my PC</button>
       <p class="note only-wide">Windows 10 and 11 · <span data-arch-note>Free installer</span> · <a href="#start">other versions</a></p>
-      <p class="note only-narrow">Loupix runs on Windows 10 and 11. Open this page on your PC to download it.</p>
+      <p class="note only-narrow" role="status"><span data-copy-note>Loupix runs on Windows 10 and 11. Copy the link and open it on your PC.</span> <a href="https://github.com/farhang103/loupix/releases/latest">See the latest release</a></p>
     </div>
   </header>
+
+  <section class="wrap next" data-next aria-labelledby="next-title" hidden>
+    <div class="next-card">
+      <h2 id="next-title">Your download has started</h2>
+      <p class="next-sub">Three quick steps and you can take your first screenshot.</p>
+      <ol>
+        <li>
+          <div class="next-art" role="img" aria-label="Your browser's downloads list, with an Open file link">
+            <div class="mini mini-light"><strong>Recent downloads</strong><span data-file>Loupix-Setup-x64.exe</span><span class="mini-link">Open file</span></div>
+          </div>
+          <h3>1. Open the installer</h3>
+          <p>It's in your browser's downloads list, usually at the top right.</p>
+        </li>
+        <li>
+          <div class="next-art next-art-two" role="img" aria-label="The Windows warning. First click More info, then click Run anyway">
+            <div class="mini mini-blue"><strong>Windows protected your PC</strong><span class="mini-link mini-ring">More info</span></div>
+            <div class="mini mini-blue"><span>Publisher: Unknown publisher</span><span class="mini-button mini-ring">Run anyway</span></div>
+          </div>
+          <h3>2. If Windows warns you</h3>
+          <p>Choose <strong>More info</strong>, then <strong>Run anyway</strong>. Loupix is open source but isn't code-signed yet, so Windows doesn't recognize it.</p>
+        </li>
+        <li>
+          <div class="next-art" role="img" aria-label="The Loupix installer with an Install button">
+            <div class="mini mini-light mini-row"><strong>Install Loupix</strong><span class="mini-button mini-accent mini-ring">Install</span></div>
+          </div>
+          <h3>3. Click Install</h3>
+          <p>No administrator prompt. Loupix opens when it's done.</p>
+        </li>
+      </ol>
+      <p class="next-more">Didn't start? <a data-download href="https://github.com/farhang103/loupix/releases/latest/download/Loupix-Setup-x64.exe">Download again</a> · <a href="https://github.com/farhang103/loupix/releases/latest/download/Loupix-Setup-arm64.exe">Windows on Arm</a> · <a href="https://github.com/farhang103/loupix/releases/latest/download/Loupix-win-x64.zip">Zip, no installer</a></p>
+    </div>
+  </section>
 
   <section class="showcase" aria-label="Loupix in use">
     <div class="showcase-frame">
@@ -103,6 +136,11 @@
         <li><kbd>I</kbd>Colour picker</li>
         <li><kbd>G</kbd>Backdrop</li>
       </ul>
+
+      <h2 class="title tools-title">How the tools work</h2>
+      <p class="sub">Each one is a click or a drag. The yellow ring means the mouse button is held down.</p>
+      <div class="how" data-how></div>
+      <button type="button" class="how-more" data-how-more>See all the tools</button>
     </div>
   </section>
 
@@ -125,7 +163,7 @@
         <p class="only-narrow">Get the installer for your PC from the <a href="https://github.com/farhang103/loupix/releases/latest">latest release</a>.</p>
       </li>
       <li>
-        <h3>2. Open it and click Next</h3>
+        <h3>2. Open it and click Install</h3>
         <p>Loupix isn't code-signed yet, so Windows may warn you the first time. Choose More info, then Run anyway.</p>
       </li>
       <li>
@@ -142,6 +180,5 @@
     <p>Inspired by <a href="https://shottr.cc">Shottr</a> for macOS. Not affiliated with or endorsed by Shottr or its developer.</p>
   </div>
 </footer>
-<div class="download-toast" data-download-toast role="status" aria-live="polite" hidden></div>
 </body>
 </html>

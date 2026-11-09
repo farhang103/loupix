@@ -176,16 +176,54 @@ h1, h2, h3 { font-family: var(--heading); }
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-.download-toast {
-  position: fixed; left: 50%; bottom: 24px; z-index: 20; transform: translateX(-50%);
-  width: min(560px, calc(100vw - 32px)); padding: 14px 20px;
-  background: var(--navy-deep); color: var(--cream); text-align: center;
-  border: 1px solid var(--key-edge); border-radius: 18px; corner-shape: squircle;
-  box-shadow: 0 12px 36px rgba(0, 0, 0, .45);
+button.cta { border: 0; font-family: inherit; cursor: pointer; }
+
+.next { padding-bottom: 56px; }
+.next[hidden] { display: none; }
+.next-card { padding: 32px; background: var(--cream); color: var(--navy); border-radius: 26px; corner-shape: squircle; animation: next-in .4s cubic-bezier(.2, .8, .2, 1) both; }
+@keyframes next-in { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: none; } }
+.next h2 { font-size: 30px; line-height: 1.15; letter-spacing: -0.01em; }
+.next-sub { margin-top: 6px; color: var(--on-light); }
+.next ol { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 32px; margin: 28px 0 0; padding: 0; list-style: none; }
+.next h3 { margin: 16px 0 6px; font-size: 22px; line-height: 1.2; }
+.next li p { font-size: 16px; color: var(--on-light); }
+.next-art { display: flex; align-items: center; height: 190px; padding: 20px; background: var(--navy); border-radius: 14px; }
+.next-art-two { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; align-items: stretch; padding: 12px; }
+.mini { display: flex; flex-direction: column; gap: 4px; min-width: 0; padding: 14px; border-radius: 8px; font: 13px/1.3 "Segoe UI", Inter, sans-serif; }
+.mini-light { flex: 1; background: #FFF; color: #1A1A1A; }
+.mini-blue { justify-content: space-between; background: #0A5BA8; color: #FFF; border-radius: 4px; font-size: 12px; }
+.mini-row { flex-direction: row; align-items: center; justify-content: space-between; }
+.mini-link { align-self: flex-start; color: inherit; text-decoration: underline; }
+.mini-light .mini-link { color: #0B5CAD; }
+.mini-button { align-self: flex-start; padding: 4px 12px; background: #FFF; color: #0A3D73; border-radius: 3px; font-weight: 600; }
+.mini-accent { align-self: center; background: #0A84FF; color: #FFF; }
+.mini-ring, .mini-light .mini-link { outline: 3px solid var(--amber); outline-offset: 2px; border-radius: 3px; }
+.next-more { margin-top: 28px; padding-top: 18px; border-top: 1px solid var(--cream-line); font-size: 15px; color: var(--on-light); }
+.next-more a { color: var(--navy); }
+
+.how { display: grid; grid-template-columns: repeat(auto-fill, minmax(264px, 1fr)); gap: 16px; margin-top: 36px; }
+.how-tile { padding: 12px; background: #FFF; border: 1px solid var(--cream-line); border-radius: 18px; corner-shape: squircle; }
+.how-tile .td { margin-inline: auto; }
+.how-tile h3 { margin: 12px 0 6px; font-size: 19px; line-height: 1.2; }
+.how-badge { display: inline-block; padding: 2px 10px; background: var(--amber); color: var(--navy); border-radius: 999px; font-size: 13px; font-weight: 600; }
+.how-tile p { margin-top: 6px; font-size: 15px; line-height: 1.4; color: var(--on-light); }
+.how-more { display: none; }
+
+@media (max-width: 960px) {
+  .next ol { grid-template-columns: minmax(0, 1fr); gap: 24px; }
 }
-.download-toast[hidden] { display: none; }
+
+@media (max-width: 720px) {
+  .next { padding-bottom: 28px; }
+  .next-card { padding: 20px; border-radius: 20px; }
+  .how { grid-template-columns: minmax(0, 1fr); gap: 12px; margin-top: 20px; }
+  .how:not(.is-open) .how-tile:nth-child(n + 4) { display: none; }
+  .how-more { display: block; width: 100%; min-height: 44px; margin-top: 12px; background: none; border: 0; color: var(--navy); font: 600 16px Inter, "Segoe UI", sans-serif; text-decoration: underline; cursor: pointer; }
+  .how-more[hidden] { display: none; }
+}
 
 @media (prefers-reduced-motion: reduce) {
-  .cta.is-busy::before { animation: none; }
+  .cta.is-busy::before, .next-card { animation: none; }
+  .td * { animation: none !important; }
   html { scroll-behavior: auto; }
 }

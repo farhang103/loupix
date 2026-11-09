@@ -16,6 +16,8 @@ public sealed class RenderContext
     public bool Exporting { get; init; }
     /// <summary>The annotation whose text is being edited in a TextBox (its text is not drawn).</summary>
     public Annotation? Editing { get; init; }
+    /// <summary>While a backdrop setting is changing, the in-between look to draw instead of the document's own.</summary>
+    public BackdropLook? EasedBackdrop { get; init; }
     public EditorImage Base => Document.Base;
     public double Scale => Document.Scale;
 }
@@ -981,6 +983,18 @@ public sealed class MeasureAnnotation : Annotation
     public Point End { get; set; }
     public string Label { get; set; } = "";
     public bool IsGuide { get; set; }
+
+    /// <summary>The ruler line for a drag: straight along whichever axis moved further, snapped to whole pixels.</summary>
+    public static (Point From, Point To, double Length) FromDrag(Point from, Point to)
+    {
+        if (Math.Abs(to.X - from.X) >= Math.Abs(to.Y - from.Y))
+        {
+            double y = Math.Floor(from.Y) + 0.5, x1 = Math.Round(from.X), x2 = Math.Round(to.X);
+            return (new Point(x1, y), new Point(x2, y), Math.Abs(x2 - x1));
+        }
+        double x = Math.Floor(from.X) + 0.5, y1 = Math.Round(from.Y), y2 = Math.Round(to.Y);
+        return (new Point(x, y1), new Point(x, y2), Math.Abs(y2 - y1));
+    }
 
     public override Rect Bounds => new(Start, End);
     public override IReadOnlyList<Point> Handles => [];

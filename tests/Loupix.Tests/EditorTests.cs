@@ -123,4 +123,68 @@ public class EditorDocumentTests
         t.MoveHandle(2, new Point(box.X + 2, box.Y + 2), false);
         Assert.Null(t.Tip);
     });
+
+    [Fact]
+    public void Ruler_drag_measures_along_the_axis_that_moved_most() => Sta.Run(() =>
+    {
+        var (from, to, width) = MeasureAnnotation.FromDrag(new Point(10.4, 20.2), new Point(110.6, 25));
+        Assert.Equal(new Point(10, 20.5), from);
+        Assert.Equal(new Point(111, 20.5), to);
+        Assert.Equal(101, width);
+
+        (from, to, var height) = MeasureAnnotation.FromDrag(new Point(10.2, 20.4), new Point(14, 90.6));
+        Assert.Equal(new Point(10.5, 20), from);
+        Assert.Equal(new Point(10.5, 91), to);
+        Assert.Equal(71, height);
+    });
+
+    [Fact]
+    public void Every_tool_explains_itself()
+    {
+        foreach (var tool in Tools.All)
+        {
+            var help = ToolHelp.For(tool.Kind);
+            Assert.False(string.IsNullOrWhiteSpace(help.How));
+            Assert.False(string.IsNullOrWhiteSpace(help.Say));
+        }
+        var inGuide = ToolHelp.Groups.SelectMany(g => g.Tools).Where(e => e.Kind != null).Select(e => e.Kind!.Value).ToHashSet();
+        Assert.Equal(Tools.All.Select(t => t.Kind).ToHashSet(), inGuide);
+    }
+
+    [Fact]
+    public void Backdrop_look_blends_halfway() => Sta.Run(() =>
+    {
+        var from = new BackdropLook(new Rect(0, 0, 100, 100), Color.FromRgb(0, 0, 0), Color.FromRgb(0, 100, 0), 0, 0);
+        var to = new BackdropLook(new Rect(-20, -40, 140, 180), Color.FromRgb(200, 0, 0), Color.FromRgb(0, 200, 0), 20, 1);
+        var mid = BackdropLook.Lerp(from, to, 0.5);
+        Assert.Equal(new Rect(-10, -20, 120, 140), mid.Outer);
+        Assert.Equal(Color.FromRgb(100, 0, 0), mid.A);
+        Assert.Equal(Color.FromRgb(0, 150, 0), mid.B);
+        Assert.Equal(10, mid.Radius);
+        Assert.Equal(0.5, mid.Shadow);
+        Assert.False(from.IsCloseTo(to));
+        Assert.True(to.IsCloseTo(BackdropLook.Lerp(from, to, 0.9999)));
+    });
+
+    [Fact]
+    public void Removing_a_backdrop_fades_its_color_instead_of_going_through_white() => Sta.Run(() =>
+    {
+        var doc = new EditorDocument(Solid(100, 100, 255, 255, 255), 1) { Backdrop = Backdrop.Default };
+        var with = BackdropLook.Of(doc);
+        doc.Backdrop = null;
+        var without = BackdropLook.Of(doc);
+        Assert.Equal(doc.Canvas, without.Outer);
+
+        var mid = BackdropLook.Lerp(with, without, 0.5);
+        Assert.Equal(with.A.R, mid.A.R);
+        Assert.Equal(with.A.G, mid.A.G);
+        Assert.Equal(with.A.B, mid.A.B);
+        Assert.InRange(mid.A.A, (byte)126, (byte)129);
+        Assert.True(BackdropLook.Lerp(with, without, 0.9999).IsCloseTo(without)); // or the fade never finishes
+
+        // A very fast screen takes tiny steps, and still has to arrive.
+        var step = with;
+        for (int i = 0; i < 2000 && !step.IsCloseTo(without); i++) step = BackdropLook.Lerp(step, without, 0.03);
+        Assert.True(step.IsCloseTo(without));
+    });
 }

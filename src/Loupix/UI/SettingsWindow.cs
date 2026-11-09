@@ -44,12 +44,13 @@ public sealed class HotkeyBox : ContentControl
         set { _text = value; Render(); }
     }
 
-    public static FrameworkElement KeyCaps(string hotkey)
+    public static FrameworkElement KeyCaps(string hotkey, bool large = false)
     {
         var caps = new StackPanel { Orientation = Orientation.Horizontal, VerticalAlignment = VerticalAlignment.Center };
         foreach (var key in hotkey.Split('+'))
         {
-            var cap = new Border { Margin = new Thickness(3, 0, 0, 0), Padding = new Thickness(7, 2, 7, 2), CornerRadius = new CornerRadius(5), BorderThickness = new Thickness(1), Child = new TextBlock { Text = key, FontSize = 12 } };
+            var label = large ? new TextBlock { Text = key, FontSize = 18, FontWeight = FontWeights.SemiBold } : new TextBlock { Text = key, FontSize = 12 };
+            var cap = new Border { Margin = large ? new Thickness(4, 0, 4, 0) : new Thickness(3, 0, 0, 0), Padding = large ? new Thickness(16, 6, 16, 6) : new Thickness(7, 2, 7, 2), CornerRadius = new CornerRadius(large ? 6 : 5), BorderThickness = new Thickness(1), Child = label };
             cap.SetResourceReference(Border.BackgroundProperty, "UiField");
             cap.SetResourceReference(Border.BorderBrushProperty, "UiLine");
             caps.Children.Add(cap);
@@ -404,6 +405,7 @@ public sealed class SettingsWindow : Window
         Switch(editor, "Open captures at 100% zoom when they fit", S.DefaultZoom100, v => S.DefaultZoom100 = v, "Otherwise they fit to the window.");
         Switch(editor, "Keep the editor window on top", S.EditorAlwaysOnTop, v => S.EditorAlwaysOnTop = v);
         Switch(editor, "Hide my previous screenshot when I reopen Loupix", S.HidePreviousScreenshot, v => S.HidePreviousScreenshot = v, "The editor opens empty, so nobody next to you sees it. Copy or save a screenshot before closing it if you want to keep it.");
+        Switch(editor, "Show how a tool works when I hover over it", S.AnimatedToolTips, v => S.AnimatedToolTips = v, "A short animation and a plain explanation.");
         Switch(editor, "Measure in physical pixels", S.MeasureInPhysicalPixels, v => S.MeasureInPhysicalPixels = v, "Instead of scaled (logical) pixels.");
         Row(editor, "Color format", Choice(S.ColorFormat, Features.ColorFormats().Select(f => (f.Key, f.Name)), v => S.ColorFormat = v, 300));
 
@@ -528,52 +530,123 @@ public sealed class SettingsWindow : Window
     }
 }
 
-/// <summary>First-run window: what Loupix is and its hotkeys.</summary>
+/// <summary>First-run window: gets you to your first screenshot, and says where Loupix went.</summary>
 public sealed class WelcomeWindow : Window
 {
-    public WelcomeWindow()
+    /// <summary>For the self test: closing it must not touch the real start-at-sign-in setting.</summary>
+    internal bool IsPreview { get; init; }
+
+    /// <param name="taken">Hotkeys another app already owns.</param>
+    public WelcomeWindow(IReadOnlyCollection<CaptureAction>? taken = null)
     {
         Title = "Welcome to Loupix";
-        Width = 440;
+        Width = 460;
         SizeToContent = SizeToContent.Height;
         ResizeMode = ResizeMode.NoResize;
         WindowStartupLocation = WindowStartupLocation.CenterScreen;
         Icon = IconFactory.Logo(48);
         UiTheme.Apply(this);
         FontSize = 13;
-        var s = SettingsStore.Current;
-        var p = new StackPanel { Margin = new Thickness(24) };
-        p.Children.Add(new Image { Source = IconFactory.Logo(128), Width = 52, Height = 52, HorizontalAlignment = HorizontalAlignment.Left });
-        p.Children.Add(new TextBlock { Text = "Loupix is ready", FontSize = 20, FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 12, 0, 4) });
-        var intro = new TextBlock { Text = "It lives in the notification area. Capture with these hotkeys:", TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 0, 0, 8) };
-        intro.SetResourceReference(TextBlock.ForegroundProperty, "UiSubtle");
-        p.Children.Add(intro);
-        foreach (var (a, n) in new[] { (CaptureAction.Area, "Area"), (CaptureAction.Fullscreen, "Fullscreen"), (CaptureAction.Window, "Window"), (CaptureAction.Scrolling, "Scrolling"), (CaptureAction.Ocr, "Recognize text") })
+        var hotkeys = SettingsStore.Current.Hotkeys;
+        taken ??= [];
+
+        var p = new StackPanel { Margin = new Thickness(24, 12, 24, 24) };
+        var header = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 0, 0, 16) };
+        header.Children.Add(new Image { Source = IconFactory.Logo(128), Width = 44, Height = 44, Margin = new Thickness(0, 0, 12, 0) });
+        header.Children.Add(new TextBlock { Text = "Loupix is ready", FontSize = 20, FontWeight = FontWeights.SemiBold, VerticalAlignment = VerticalAlignment.Center });
+        p.Children.Add(header);
+
+        p.Children.Add(FirstScreenshot(hotkeys.GetValueOrDefault(CaptureAction.Area, ""), taken.Contains(CaptureAction.Area)));
+
+        var others = new StackPanel { Margin = new Thickness(0, 8, 0, 0) };
+        foreach (var (action, name) in new[] { (CaptureAction.Fullscreen, "Whole screen"), (CaptureAction.Ocr, "Copy text from the screen") })
         {
-            var hotkey = s.Hotkeys.GetValueOrDefault(a, "");
+            var hotkey = hotkeys.GetValueOrDefault(action, "");
             if (hotkey.Length == 0) continue;
             var row = new DockPanel { LastChildFill = false };
-            var keys = HotkeyBox.KeyCaps(hotkey);
-            DockPanel.SetDock(keys, Dock.Right);
-            row.Children.Add(keys);
-            row.Children.Add(new TextBlock { Text = n, VerticalAlignment = VerticalAlignment.Center });
+            FrameworkElement right = taken.Contains(action) ? Subtle("Used by another app") : HotkeyBox.KeyCaps(hotkey);
+            right.VerticalAlignment = VerticalAlignment.Center;
+            DockPanel.SetDock(right, Dock.Right);
+            row.Children.Add(right);
+            row.Children.Add(new TextBlock { Text = name, VerticalAlignment = VerticalAlignment.Center });
             var line = new Border { BorderThickness = new Thickness(0, 0, 0, 1), Padding = new Thickness(0, 7, 0, 7), Child = row };
             line.SetResourceReference(Border.BorderBrushProperty, "UiLine");
-            p.Children.Add(line);
+            others.Children.Add(line);
         }
+        p.Children.Add(others);
+
         var startup = new ToggleButton { IsChecked = true, Style = (Style)FindResource("UiSwitch") };
         AutomationProperties.SetName(startup, "Launch Loupix when I sign in");
         DockPanel.SetDock(startup, Dock.Right);
-        p.Children.Add(new DockPanel { LastChildFill = false, Margin = new Thickness(0, 12, 0, 16), Children = { startup, new TextBlock { Text = "Launch Loupix when I sign in", VerticalAlignment = VerticalAlignment.Center } } });
+        p.Children.Add(new DockPanel { LastChildFill = false, Margin = new Thickness(0, 12, 0, 14), Children = { startup, new TextBlock { Text = "Launch Loupix when I sign in", VerticalAlignment = VerticalAlignment.Center } } });
+        Closed += (_, _) => { if (!IsPreview) Apply(startup.IsChecked == true); };
+
+        p.Children.Add(WhereItLives());
+
         var buttons = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Right };
         var settings = new Button { Content = "Customize…", Margin = new Thickness(0, 0, 8, 0) };
-        settings.Click += (_, _) => { Apply(startup.IsChecked == true); AppController.Instance.ShowSettings(); Close(); };
-        var ok = new Button { Content = "Get started", IsDefault = true, Style = (Style)FindResource("UiPrimary") };
-        ok.Click += (_, _) => { Apply(startup.IsChecked == true); Close(); };
+        settings.Click += (_, _) => { Close(); AppController.Instance.ShowSettings(); }; // closing saves the autostart choice, which Settings then shows
+        var done = new Button { Content = "Done", IsDefault = true, Style = (Style)FindResource("UiPrimary") };
+        done.Click += (_, _) => Close();
         buttons.Children.Add(settings);
-        buttons.Children.Add(ok);
+        buttons.Children.Add(done);
         p.Children.Add(buttons);
         Content = p;
+    }
+
+    /// <summary>The one thing to do next, or how to fix it if another app owns the hotkey.</summary>
+    private FrameworkElement FirstScreenshot(string hotkey, bool taken)
+    {
+        var body = new StackPanel();
+        if (hotkey.Length > 0 && !taken)
+        {
+            var label = Subtle("Take your first screenshot");
+            label.HorizontalAlignment = HorizontalAlignment.Center;
+            label.Margin = new Thickness(0, 0, 0, 12);
+            body.Children.Add(label);
+            var keys = HotkeyBox.KeyCaps(hotkey, large: true);
+            keys.HorizontalAlignment = HorizontalAlignment.Center;
+            keys.Margin = new Thickness(0, 0, 0, 12);
+            body.Children.Add(keys);
+            body.Children.Add(new TextBlock { Text = "Press these keys, then drag over anything on your screen.", FontSize = 14, TextAlignment = TextAlignment.Center, TextWrapping = TextWrapping.Wrap });
+        }
+        else
+        {
+            body.Children.Add(new TextBlock { Text = hotkey.Length > 0 ? $"Another app is already using {hotkey}" : "Choose a hotkey for taking screenshots", FontSize = 14, FontWeight = FontWeights.SemiBold, TextAlignment = TextAlignment.Center, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 0, 0, 12) });
+            var choose = new Button { Content = "Choose different keys", HorizontalAlignment = HorizontalAlignment.Center, Style = (Style)FindResource("UiPrimary") };
+            choose.Click += (_, _) => { Close(); AppController.Instance.ShowSettings("Hotkeys"); };
+            body.Children.Add(choose);
+        }
+        return Card(body, new Thickness(20));
+    }
+
+    private static FrameworkElement WhereItLives()
+    {
+        var arrow = new System.Windows.Shapes.Path { Data = Geometry.Parse("M2.5 8 6 4.5 9.5 8"), StrokeThickness = 2, StrokeStartLineCap = PenLineCap.Round, StrokeEndLineCap = PenLineCap.Round, StrokeLineJoin = PenLineJoin.Round, Width = 12, Height = 12 };
+        arrow.SetResourceReference(System.Windows.Shapes.Shape.StrokeProperty, "UiText");
+        var arrowBox = new Border { Width = 24, Height = 24, CornerRadius = new CornerRadius(4), Margin = new Thickness(0, 0, 10, 0), Child = arrow };
+        arrowBox.SetResourceReference(Border.BackgroundProperty, "UiButton");
+        DockPanel.SetDock(arrowBox, Dock.Left);
+        var note = Subtle("Loupix waits next to the clock. If you can't see its icon, click this arrow on your taskbar.");
+        note.TextWrapping = TextWrapping.Wrap;
+        note.VerticalAlignment = VerticalAlignment.Center;
+        var card = Card(new DockPanel { Children = { arrowBox, note } }, new Thickness(12, 10, 12, 10));
+        card.Margin = new Thickness(0, 0, 0, 16);
+        return card;
+    }
+
+    private static Border Card(UIElement child, Thickness padding)
+    {
+        var card = new Border { CornerRadius = new CornerRadius(8), Padding = padding, Child = child };
+        card.SetResourceReference(Border.BackgroundProperty, "UiCard");
+        return card;
+    }
+
+    private static TextBlock Subtle(string text)
+    {
+        var t = new TextBlock { Text = text };
+        t.SetResourceReference(TextBlock.ForegroundProperty, "UiSubtle");
+        return t;
     }
 
     private static void Apply(bool startup)

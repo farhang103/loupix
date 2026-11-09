@@ -35,8 +35,11 @@ public partial class EditorWindow : Window
         Icon = IconFactory.Logo(48);
         BuildToolbar();
         BuildActions();
+        _hoverCards = new ToolHoverCards(this, TitleBar);
+        ApplyToolTips();
+        SettingsStore.Changed += ApplyToolTips;
 
-        Canvas.StateChanged += () => { UpdateStyleBar(); UpdateInfo(); };
+        Canvas.StateChanged += () => { if (!_keepStyleBar) UpdateStyleBar(); UpdateInfo(); };
         Canvas.ViewChanged += UpdateZoomText;
         Canvas.ToolChanged += t => { if (_toolButtons.TryGetValue(t, out var b)) b.IsChecked = true; UpdateStyleBar(); FitToolbar(); };
         Canvas.HoverChanged += OnHover;
@@ -230,6 +233,33 @@ public partial class EditorWindow : Window
         TitleBar.SizeChanged += (_, _) => FitToolbar();
     }
 
+    private bool? _animatedTips;
+
+    private readonly ToolHoverCards _hoverCards;
+    internal ToolHoverCards HoverCards => _hoverCards;
+    internal FrameworkElement ToolButton(ToolKind kind) => _toolButtons[kind];
+
+    /// <summary>Tool buttons get an animated card, unless that's turned off in Settings.</summary>
+    private void ApplyToolTips()
+    {
+        bool animated = Settings.AnimatedToolTips;
+        if (_animatedTips == animated) return;
+        bool firstTime = _animatedTips == null;
+        _animatedTips = animated;
+        _hoverCards.Enabled = animated;
+        void Set(FrameworkElement button, ToolHelpEntry help, string plain)
+        {
+            if (firstTime)
+            {
+                _hoverCards.Attach(button, help);
+                System.Windows.Automation.AutomationProperties.SetName(button, plain);
+            }
+            button.ToolTip = animated ? null : plain;
+        }
+        foreach (var t in Tools.All) Set(_toolButtons[t.Kind], ToolHelp.For(t.Kind), t.Tooltip);
+        Set(_dragButton, ToolHelp.DragOut, "Drag the image into another app");
+    }
+
     private bool _fitting;
 
     /// <summary>
@@ -316,6 +346,7 @@ public partial class EditorWindow : Window
         {
             if (Keyboard.Modifiers.HasFlag(ModifierKeys.Shift)) SaveAs(); else Save(closeAfter: false);
         });
+        ActionButton("", "How each tool works", (_, _) => AppController.Instance.ShowToolGuide());
         var more = ActionButton("", "More", (s, _) => ShowMainMenu((FrameworkElement)s));
     }
 
@@ -496,7 +527,7 @@ public partial class EditorWindow : Window
                 StyleBar.Visibility = Visibility.Collapsed;
                 return;
             case ToolKind.Ruler:
-                AddHint("Hover and press ← → (horizontal) or ↑ ↓ (vertical) to measure · Shift: outer size · Click: imprint · Alt+S / Alt+D: guides");
+                AddHint("Drag to measure · or hover and press ← → (horizontal) or ↑ ↓ (vertical) to find the edges · Shift: outer size · Click: imprint · Alt+S / Alt+D: guides");
                 StyleBar.Visibility = Visibility.Visible;
                 return;
             case ToolKind.ColorPicker:
@@ -628,11 +659,20 @@ public partial class EditorWindow : Window
         StylePanel.Children.Add(b);
     }
 
+    private bool _keepStyleBar;
+
     private Slider AddSlider(double min, double max, double value, Action<double> changed)
     {
         var s = new Slider { Style = (Style)FindResource("DarkSlider"), Minimum = min, Maximum = max, Value = value };
         bool first = true;
-        s.ValueChanged += (_, e) => { if (!first) changed(e.NewValue); };
+        s.ValueChanged += (_, e) =>
+        {
+            if (first) return;
+            // Rebuilding the bar here would destroy the very slider being dragged.
+            _keepStyleBar = true;
+            try { changed(e.NewValue); }
+            finally { _keepStyleBar = false; }
+        };
         first = false;
         StylePanel.Children.Add(s);
         return s;
@@ -704,7 +744,7 @@ public partial class EditorWindow : Window
             StylePanel.Children.Add(rb);
         }
         AddSeparator();
-        AddButton("Remove", () => { _doc.Checkpoint(); _doc.Backdrop = null; _doc.RaiseChanged(); Canvas.ZoomToFit(); });
+        AddButton("Remove", () => Canvas.ChangeBackdropSmoothly(() => { _doc.Checkpoint(); _doc.Backdrop = null; _doc.RaiseChanged(); }));
     }
 
     private DateTime _lastBackdropCheckpoint;
@@ -717,9 +757,17 @@ public partial class EditorWindow : Window
             _doc.Checkpoint();
             _lastBackdropCheckpoint = DateTime.Now;
         }
-        _doc.Backdrop = change(_doc.Backdrop ?? Backdrop.Default);
-        _doc.RaiseChanged();
-        Canvas.ZoomToFit();
+        // The swatch or slider that was used already shows the new value, so the bar can stay as it is.
+        _keepStyleBar = true;
+        try
+        {
+            Canvas.ChangeBackdropSmoothly(() =>
+            {
+                _doc.Backdrop = change(_doc.Backdrop ?? Backdrop.Default);
+                _doc.RaiseChanged();
+            });
+        }
+        finally { _keepStyleBar = false; }
     }
 
     // ---------------- keyboard ----------------
@@ -1056,6 +1104,25 @@ public partial class EditorWindow : Window
         Toast.Visibility = Visibility.Visible;
         _toastTimer.Stop();
         _toastTimer.Start();
+    }
+
+    /// <summary>Shows a two-line tip at the bottom of the editor for a few seconds.</summary>
+    public void ShowCoach(string title, string text)
+    {
+        CoachTitle.Text = title;
+        CoachText.Text = text;
+        Coach.BeginAnimation(OpacityProperty, null);
+        Coach.Opacity = 1;
+        Coach.Visibility = Visibility.Visible;
+        var timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(9) };
+        timer.Tick += (_, _) =>
+        {
+            timer.Stop();
+            var fade = new DoubleAnimation(0, TimeSpan.FromMilliseconds(250));
+            fade.Completed += (_, _) => Coach.Visibility = Visibility.Collapsed;
+            Coach.BeginAnimation(OpacityProperty, fade);
+        };
+        timer.Start();
     }
 
     private void HideToast()

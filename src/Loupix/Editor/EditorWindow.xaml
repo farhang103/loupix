@@ -68,6 +68,15 @@
                     <TextBlock x:Name="ToastText" FontSize="13" Foreground="{StaticResource TextBrush}" />
                 </StackPanel>
             </Border>
+            <!-- A one-time tip after the very first capture. -->
+            <Border x:Name="Coach" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,0,0,26" Padding="16,12"
+                    CornerRadius="10" Background="#FF2A2A2D" BorderBrush="{StaticResource LineBrush}" BorderThickness="1"
+                    Visibility="Collapsed" IsHitTestVisible="False">
+                <StackPanel>
+                    <TextBlock x:Name="CoachTitle" FontSize="13" FontWeight="SemiBold" Foreground="{StaticResource TextBrush}" />
+                    <TextBlock x:Name="CoachText" FontSize="13" Foreground="#FFC4C4CA" />
+                </StackPanel>
+            </Border>
         </Grid>
     </Grid>
 </Window>
