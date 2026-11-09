@@ -77,7 +77,7 @@ public sealed class Updater(Func<bool> editorInUse, Action quit)
         catch (Exception ex)
         {
             Log.Info($"Update check failed: {ex.Message}");
-            Set(userAsked ? UpdateStatus.CheckFailed : before);
+            if (_download == null) Set(userAsked ? UpdateStatus.CheckFailed : before);
         }
     }
 

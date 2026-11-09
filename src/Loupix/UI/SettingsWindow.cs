@@ -458,7 +458,7 @@ public sealed class SettingsWindow : Window
         var rows = Group(page, "Updates");
         var status = new Border();
         AddRow(rows, status);
-        var automatic = Switch(rows, "Check for updates automatically", S.CheckForUpdates, v => S.CheckForUpdates = v, "About once a day, Loupix asks GitHub for the latest version. Your screenshots are never sent. With this off, Loupix won't tell you about new versions.");
+        var automatic = Switch(rows, "Check for updates automatically", S.CheckForUpdates, v => { S.CheckForUpdates = v; if (!v && updater.Status == UpdateStatus.Available) UpdateCard.CloseCurrent(); }, "About once a day, Loupix asks GitHub for the latest version. Your screenshots are never sent. With this off, Loupix won't tell you about new versions.");
 
         // The update card can turn this off while Settings is open.
         Action followSetting = () => automatic.IsChecked = S.CheckForUpdates;
