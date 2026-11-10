@@ -15,6 +15,8 @@ jobs:
     runs-on: windows-latest
     permissions:
       contents: write # lets a merge to main publish a GitHub Release
+    outputs:
+      release: ${{ steps.version.outputs.release }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -97,3 +99,34 @@ jobs:
           files: |
             out/*.zip
             out/*.exe
+
+  # Sends each release to the Microsoft Store. Microsoft certifies it (a few hours, up to 3 business days) and then publishes it.
+  # It signs in as the Entra app in Partner Center > Account settings > User management > Microsoft Entra applications,
+  # which needs the Manager role. Its key expires, so renew it there and update MSSTORE_CLIENT_SECRET.
+  # A separate job so that if the Store says no, for example because the last update is still in certification,
+  # "Re-run failed jobs" on the run tries again without making another release.
+  store:
+    needs: build
+    if: needs.build.outputs.release == 'true'
+    runs-on: windows-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: Loupix-windows
+
+      - uses: microsoft/microsoft-store-apppublisher@v1.4
+
+      - name: Submit to the Microsoft Store
+        shell: pwsh
+        env:
+          TENANT_ID: ${{ secrets.MSSTORE_TENANT_ID }}
+          SELLER_ID: ${{ secrets.MSSTORE_SELLER_ID }}
+          CLIENT_ID: ${{ secrets.MSSTORE_CLIENT_ID }}
+          CLIENT_SECRET: ${{ secrets.MSSTORE_CLIENT_SECRET }}
+        run: |
+          msstore reconfigure --tenantId $env:TENANT_ID --sellerId $env:SELLER_ID --clientId $env:CLIENT_ID --clientSecret $env:CLIENT_SECRET
+          if ($LASTEXITCODE -ne 0) { throw 'Could not sign in to Partner Center' }
+          # Replaces the package in the previous submission and keeps its listing, price and markets.
+          $bundle = Get-Item store/*.msixbundle
+          msstore publish $bundle.FullName --appId 9N72XVGTS998
+          if ($LASTEXITCODE -ne 0) { throw 'The Store did not accept the submission' }
