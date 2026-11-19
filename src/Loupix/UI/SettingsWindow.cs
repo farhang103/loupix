@@ -684,7 +684,7 @@ public sealed class LinkPermissionWindow : Window
         var body = new TextBlock { Text = "Launchers, scripts and web pages can use loupix:// links to take screenshots and copy, save or pin them. Allow this only if you use that kind of automation.", TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 8, 0, 10) };
         body.SetResourceReference(TextBlock.ForegroundProperty, "UiSubtle");
         p.Children.Add(body);
-        var requested = new Border { Padding = new Thickness(10, 8, 10, 8), CornerRadius = new CornerRadius(6), Child = new TextBlock { Text = url, FontFamily = new FontFamily("Cascadia Mono, Consolas"), FontSize = 12, TextWrapping = TextWrapping.Wrap } };
+        var requested = new Border { Padding = new Thickness(10, 8, 10, 8), CornerRadius = new CornerRadius(6), Child = new TextBlock { Text = url, FontFamily = new FontFamily("Consolas"), FontSize = 12, TextWrapping = TextWrapping.Wrap } };
         requested.SetResourceReference(Border.BackgroundProperty, "UiButton");
         p.Children.Add(requested);
         var deny = new Button { Content = "Don't allow", IsDefault = true, IsCancel = true, Style = (Style)FindResource("UiPrimary"), Margin = new Thickness(0, 0, 8, 0) };
