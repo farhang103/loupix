@@ -41,7 +41,7 @@
                     <Button x:Name="ColorButton" Style="{StaticResource IconButton}" Click="OnColorFormatClick" ToolTip="Color under cursor — Tab copies it. Click for formats and contrast.">
                         <StackPanel Orientation="Horizontal">
                             <Border x:Name="ColorSwatch" Width="14" Height="14" CornerRadius="3" BorderBrush="#50FFFFFF" BorderThickness="1" Background="Transparent" Margin="0,0,6,0" />
-                            <TextBlock x:Name="ColorText" Text="—" FontSize="12" MinWidth="64" FontFamily="Cascadia Mono, Consolas" />
+                            <TextBlock x:Name="ColorText" Text="—" FontSize="12" MinWidth="64" FontFamily="Consolas" />
                         </StackPanel>
                     </Button>
                     <Rectangle Style="{StaticResource Separator}" />

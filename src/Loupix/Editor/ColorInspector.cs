@@ -95,7 +95,7 @@ public sealed class ColorInspector : Popup
             var copy = new Button
             {
                 Style = (Style)Application.Current.FindResource("RoundButton"),
-                Content = new TextBlock { Text = value, FontFamily = new FontFamily("Cascadia Mono, Consolas"), FontSize = 12.5, Foreground = Text },
+                Content = new TextBlock { Text = value, FontFamily = new FontFamily("Consolas"), FontSize = 12.5, Foreground = Text },
                 HorizontalContentAlignment = HorizontalAlignment.Left,
                 Background = Brushes.Transparent,
                 BorderThickness = new Thickness(0),
@@ -118,7 +118,7 @@ public sealed class ColorInspector : Popup
         sp.Children.Add(new Border { Width = 26, Height = 26, CornerRadius = new CornerRadius(5), Background = new SolidColorBrush(c), BorderBrush = Frozen(Color.FromArgb(80, 255, 255, 255)), BorderThickness = new Thickness(1) });
         var texts = new StackPanel { Margin = new Thickness(8, 0, 0, 0), VerticalAlignment = VerticalAlignment.Center };
         texts.Children.Add(new TextBlock { Text = label, Foreground = Subtle, FontSize = 11 });
-        texts.Children.Add(new TextBlock { Text = $"#{c.R:X2}{c.G:X2}{c.B:X2}", Foreground = Text, FontSize = 12.5, FontFamily = new FontFamily("Cascadia Mono, Consolas") });
+        texts.Children.Add(new TextBlock { Text = $"#{c.R:X2}{c.G:X2}{c.B:X2}", Foreground = Text, FontSize = 12.5, FontFamily = new FontFamily("Consolas") });
         sp.Children.Add(texts);
         Grid.SetColumn(sp, column);
         return sp;
